@@ -1,0 +1,46 @@
+# New Era Expert — Content Dashboard
+# Cloudflare Pages project. Pages Functions (./functions) handle the API;
+# ./src is the static dashboard UI.
+#
+# IMPORTANT: the IDs below are placeholders. Create the actual KV namespace
+# and R2 bucket in the Cloudflare dashboard (or via `wrangler kv namespace
+# create` / `wrangler r2 bucket create`), then replace the ids/bucket_name
+# here before first deploy. Per the brief's Section 8 lesson: verify the
+# GitHub → Cloudflare Pages auto-deploy is actually wired with a real test
+# push before assuming it works.
+
+name = "new-era-expert-dashboard"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "./src"
+
+# ─── KV — topic list, demand scores, approval queue state ────────────────────
+# Single source of truth for both the "what's coming up next" preview AND
+# the automated topic picker — see lib/topic-ranker.js. Do not let a second
+# copy of this data exist anywhere else (committed JSON, a different KV key
+# namespace, etc.) — that drift was a real, already-diagnosed bug on the
+# reference project.
+[[kv_namespaces]]
+binding = "CONTENT_KV"
+id = "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+
+# ─── R2 — video files, generated thumbnails, exported clips ──────────────────
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "new-era-expert-media"
+
+# ─── Environment variables — non-secret config ────────────────────────────────
+[vars]
+PLATFORM_NAME = "The New Era Expert"
+TARGET_VIDEO_LENGTH_MIN_MINUTES = "8"
+TARGET_VIDEO_LENGTH_MAX_MINUTES = "15"
+PUBLISHING_CADENCE_PER_WEEK = "2"
+
+# ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
+# CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
+# IMAGE_GEN_API_KEY     — thumbnail background generation (no-text prompts only, see lib/thumbnail.js)
+# YOUTUBE_CLIENT_ID / YOUTUBE_CLIENT_SECRET / YOUTUBE_REFRESH_TOKEN — publish API
+# TIKTOK_ACCESS_TOKEN   — Content Posting API
+# INSTAGRAM_ACCESS_TOKEN — Graph API
+# (LinkedIn: no reliable organic-video API — dashboard prepares captions,
+#  publish is a manual copy-paste step until/unless a LinkedIn API
+#  partnership exists. See README "Known limitations.")

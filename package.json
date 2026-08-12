@@ -1,0 +1,14 @@
+{
+  "name": "new-era-expert-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agentic content dashboard for The New Era Expert — manually-shot videos in, AI-generated metadata + YouTube publish + short-form repurposing out.",
+  "scripts": {
+    "dev": "wrangler pages dev ./src --compatibility-date=2026-08-01",
+    "deploy": "wrangler pages deploy ./src",
+    "topics:test": "node --test lib/topic-ranker.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
