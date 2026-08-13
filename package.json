@@ -8,6 +8,9 @@
     "deploy": "wrangler pages deploy ./src",
     "topics:test": "node --test lib/topic-ranker.test.js"
   },
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2"
+  },
   "devDependencies": {
     "wrangler": "^4.0.0"
   }

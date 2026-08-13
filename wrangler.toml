@@ -13,9 +13,10 @@ name = "new-era-expert-dashboard"
 compatibility_date = "2026-08-01"
 pages_build_output_dir = "./src"
 
-# ─── KV — topic list, demand scores, approval queue state ────────────────────
+# ─── KV — topic list, demand scores, approval queue state, video pipeline ────
 # Single source of truth for both the "what's coming up next" preview AND
-# the automated topic picker — see lib/topic-ranker.js. Do not let a second
+# the automated topic picker — see lib/topic-ranker.js. Also backs
+# lib/video-store.js's per-video pipeline records. Do not let a second
 # copy of this data exist anywhere else (committed JSON, a different KV key
 # namespace, etc.) — that drift was a real, already-diagnosed bug on the
 # reference project.
@@ -34,6 +35,11 @@ PLATFORM_NAME = "The New Era Expert"
 TARGET_VIDEO_LENGTH_MIN_MINUTES = "8"
 TARGET_VIDEO_LENGTH_MAX_MINUTES = "15"
 PUBLISHING_CADENCE_PER_WEEK = "2"
+# YouTube's real hard limit on custom thumbnail file size — enforced in
+# functions/api/metadata/thumbnail.js so an oversized render fails there
+# with a clear error instead of a confusing rejection later from
+# thumbnails.set in publish-youtube.js.
+THUMBNAIL_MAX_BYTES = "2097152"
 
 # ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
 # CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
