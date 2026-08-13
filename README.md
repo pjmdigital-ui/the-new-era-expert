@@ -149,14 +149,17 @@ data rather than assumption.
   bypassed by calling it directly.
 
 **All lib/ logic has been run, not just written** — `node --test lib/*.test.js`
-passes 64/64, with every external API call (Claude, OpenAI image gen,
-YouTube, TikTok, Instagram) tested against an injectable mock `fetch`. What
-this does **not** cover — because none of these have real credentials or a
-Workers-like runtime yet — is an actual end-to-end call to any of those
-external APIs, or `lib/thumbnail-render.js` / `lib/media-transform.js`
-against Cloudflare's real WASM/Media Transformations bindings. Beyond unit
-tests, `wrangler pages dev` was booted locally for the topics slice only
-(GET `/api/topics`, POST `/api/topics/cover` — verified end to end). The
+passes 85/85 (64 from the video pipeline built this round — upload, metadata,
+publish-youtube, repurpose — plus 21 from the pre-existing topics slice:
+`topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`),
+with every external API call (Claude, OpenAI image gen, YouTube, TikTok,
+Instagram) tested against an injectable mock `fetch`. What this does **not**
+cover — because none of these have real credentials or a Workers-like
+runtime yet — is an actual end-to-end call to any of those external APIs, or
+`lib/thumbnail-render.js` / `lib/media-transform.js` against Cloudflare's
+real WASM/Media Transformations bindings. Beyond unit tests, `wrangler pages
+dev` was booted locally for the topics slice only (GET `/api/topics`, POST
+`/api/topics/cover` — verified end to end). The
 upload/metadata/publish-youtube/repurpose endpoints have **not** yet been
 exercised against `wrangler pages dev` — do that before trusting them in
 production.
@@ -223,7 +226,7 @@ production.
 ```bash
 npm install
 npm run topics:test    # runs lib/topic-ranker.test.js only
-node --test lib/*.test.js   # runs the full test suite (64 tests)
+node --test lib/*.test.js   # runs the full test suite (85 tests)
 npm run dev             # local Cloudflare Pages dev server
 npm run deploy           # wrangler pages deploy
 ```
