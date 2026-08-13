@@ -148,28 +148,67 @@ data rather than assumption.
   409s on any clip that isn't `"approved"`, so the approval gate can't be
   bypassed by calling it directly.
 
+**Dashboard UI** (the visual layer over everything above — plain HTML/CSS/JS,
+no framework, matching the topics dashboard's existing style):
+
+- **`functions/api/videos/index.js`** (GET, list summaries) and
+  **`functions/api/videos/[id].js`** (GET, full record) — thin wrappers over
+  `listVideos`/`getVideo` in `video-store.js`. Nothing previously exposed
+  these, so the dashboard had no way to list or read videos before this.
+- **`functions/api/media/[[path]].js`** — streams thumbnails/clips/source
+  video straight out of the private `MEDIA` R2 bucket for `<img>`/`<video>`
+  tags (only serves the `thumbnails/`, `clips/`, `videos/` prefixes; 403s on
+  anything else). Avoids needing R2's public-access setup just to preview
+  media in the dashboard — see the `MEDIA_PUBLIC_BASE_URL` note below for
+  why Instagram still needs that setup regardless.
+- **`src/styles.css`** — the topics dashboard's inline styles, extracted so
+  both pages share one theme; `src/index.html` now links it and has a
+  Topics/Videos nav.
+- **`src/videos.html` + `src/videos.js`** — one page, list view (all videos,
+  upload-new-video form with chunked-upload progress) and detail view
+  (`?id=`) with four sections mirroring the pipeline: upload status,
+  metadata (generate options → pick title/description/thumbnail image →
+  lock in), publish to YouTube, and repurpose (generate clips → approve/
+  reject → publish per clip to tiktok/instagram, with copy-to-clipboard
+  captions for linkedin's manual flow). Re-fetches the full video record
+  after every mutating action rather than hand-merging each route's partial
+  response shape.
+
 **All lib/ logic has been run, not just written** — `node --test lib/*.test.js`
-passes 85/85 (64 from the video pipeline built this round — upload, metadata,
+passes 85/85 (64 from the video-pipeline backend — upload, metadata,
 publish-youtube, repurpose — plus 21 from the pre-existing topics slice:
 `topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`),
 with every external API call (Claude, OpenAI image gen, YouTube, TikTok,
-Instagram) tested against an injectable mock `fetch`. What this does **not**
-cover — because none of these have real credentials or a Workers-like
-runtime yet — is an actual end-to-end call to any of those external APIs, or
+Instagram) tested against an injectable mock `fetch`. **The upload +
+videos-list/detail + media-proxy routes have now also been smoke-tested
+end-to-end against a real `wrangler pages dev` server** (a real multipart
+file upload through completion, list/detail rendering, and the dashboard UI
+itself driven headlessly with Playwright — every section, selection state,
+and gating rule behaves as designed). What's still **not** verified: an
+actual call to any external API (Claude, OpenAI, YouTube, TikTok, Instagram,
+Workers AI Whisper — none have real credentials configured), or
 `lib/thumbnail-render.js` / `lib/media-transform.js` against Cloudflare's
-real WASM/Media Transformations bindings. Beyond unit tests, `wrangler pages
-dev` was booted locally for the topics slice only (GET `/api/topics`, POST
-`/api/topics/cover` — verified end to end). The
-upload/metadata/publish-youtube/repurpose endpoints have **not** yet been
-exercised against `wrangler pages dev` — do that before trusting them in
-production.
+real WASM/Media Transformations bindings.
+
+**Local-dev gotcha found while smoke-testing:** `wrangler pages dev` treats
+the `[ai]` and `[media]` bindings as **remote-only** — even without
+`--remote`, it tries to open a remote proxy session for them at startup and
+hard-crashes the *entire* dev server if `CLOUDFLARE_API_TOKEN` isn't set,
+even for requests to routes that never touch AI or Media Transformations.
+There's no known local simulation for either binding. Until a real
+Cloudflare API token is available for local dev, test AI/media-dependent
+routes by temporarily commenting out the `[ai]`/`[media]` blocks in a
+**local, uncommitted** copy of `wrangler.toml` (everything else runs fine
+without them) — do not commit `wrangler.toml` with those blocks removed.
 
 ## Known open pieces — not yet built or not yet verified
 
-- **`wrangler pages dev` smoke test for the new endpoint groups.** Only the
-  topics slice has been booted and hit with real local HTTP requests; the
-  upload/metadata/publish-youtube/repurpose routes are unit-tested at the
-  `lib/` layer only.
+- **`wrangler pages dev` smoke test for the AI-dependent routes.** Upload,
+  the videos list/detail routes, and the media proxy are now verified
+  end-to-end (see above). Metadata generation, publish-youtube, and
+  repurpose still can't be exercised locally without real secrets — and
+  even with secrets, `[ai]`/`[media]` need a `CLOUDFLARE_API_TOKEN` for
+  local dev per the gotcha noted above.
 - **Image-gen vendor confirmation.** `lib/thumbnail-image.js` wraps OpenAI's
   Images API as a placeholder — confirm whether that's the intended
   provider for `IMAGE_GEN_API_KEY` before relying on it.
@@ -208,9 +247,12 @@ production.
   API access is restrictive — plan on a manual copy-paste fallback
   (captions ready in the dashboard, creator posts manually) unless a
   LinkedIn API partnership exists.
-- **Dashboard UI for the video pipeline** (upload/metadata/publish/repurpose
-  screens in `src/`) — not started. `src/` currently only has the topics
-  dashboard.
+- **Upload resume-after-reload isn't supported.** The dashboard's upload
+  flow handles same-session chunk retries (idempotent by `partNumber`), but
+  browsers can't reattach a `File` handle after a page reload — an
+  interrupted upload has to be aborted and restarted with the file
+  re-selected, not resumed. `/api/upload/<id>/status` exists for a future
+  resume UI if that becomes worth building.
 
 ## Engineering pitfalls to design around (carried over from the sibling project)
 

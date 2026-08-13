@@ -4,91 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The New Era Expert — Content Dashboard</title>
-<style>
-  :root {
-    --bg: #0d0518;
-    --card: #170a2b;
-    --border: #2a1a44;
-    --text: #f5f2fa;
-    --muted: #a998c2;
-    --gold: #d4af37;
-    --gold-bright: #f0c93a;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  }
-  header {
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  h1 { font-size: 20px; margin: 0; letter-spacing: 0.02em; }
-  h1 span { color: var(--gold-bright); }
-  main { max-width: 900px; margin: 0 auto; padding: 32px; }
-  .next-up {
-    background: var(--card);
-    border: 1px solid var(--gold);
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 28px;
-  }
-  .next-up .label {
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--gold-bright);
-    margin-bottom: 8px;
-  }
-  .next-up .title { font-size: 18px; font-weight: 600; }
-  .next-up .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
-  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
-  button {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  button:hover { border-color: var(--gold); }
-  button:disabled { opacity: 0.5; cursor: default; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-  tr:hover { background: rgba(255,255,255,0.02); }
-  .entry-tag {
-    display: inline-block;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--muted);
-  }
-  .cover-btn { font-size: 12px; padding: 4px 10px; }
-  .empty-state { color: var(--muted); padding: 40px; text-align: center; }
-  .error-banner {
-    background: #3a1414;
-    border: 1px solid #7a2a2a;
-    color: #f5b8b8;
-    padding: 10px 16px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    display: none;
-  }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
   <h1>THE NEW <span>ERA</span> EXPERT — Content Dashboard</h1>
+  <nav class="nav">
+    <a href="index.html" class="active">Topics</a>
+    <a href="videos.html">Videos</a>
+  </nav>
 </header>
 <main>
   <div id="error-banner" class="error-banner"></div>

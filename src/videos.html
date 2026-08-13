@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The New Era Expert — Video Pipeline</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>THE NEW <span>ERA</span> EXPERT — Video Pipeline</h1>
+  <nav class="nav">
+    <a href="index.html">Topics</a>
+    <a href="videos.html" class="active">Videos</a>
+  </nav>
+</header>
+<main>
+  <div id="error-banner" class="error-banner"></div>
+
+  <div id="list-view">
+    <div class="section">
+      <h2>Upload a new video</h2>
+      <div class="field-row">
+        <input type="file" id="file-input" accept="video/*">
+        <button id="upload-btn" class="primary">Upload</button>
+      </div>
+      <div id="upload-progress-wrap" style="display:none;">
+        <div class="progress-bar"><div class="progress-bar-fill" id="upload-progress-fill" style="width:0%"></div></div>
+        <div class="hint" id="upload-progress-label"></div>
+        <button id="abort-upload-btn">Cancel upload</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button id="reload-list-btn">Reload list</button>
+    </div>
+
+    <table id="videos-table" style="display:none;">
+      <thead>
+        <tr><th>Filename</th><th>Status</th><th>Updated</th></tr>
+      </thead>
+      <tbody id="videos-body"></tbody>
+    </table>
+    <div id="videos-empty-state" class="empty-state">Loading videos…</div>
+  </div>
+
+  <div id="detail-view" style="display:none;">
+    <div class="toolbar">
+      <a href="videos.html" style="text-decoration:none;"><button>&larr; Back to list</button></a>
+    </div>
+
+    <div class="section" id="upload-section">
+      <h2>1. Upload <span class="status-badge" id="video-status-badge"></span></h2>
+      <div id="upload-section-body"></div>
+    </div>
+
+    <div class="section" id="metadata-section">
+      <h2>2. Metadata</h2>
+      <div id="metadata-section-body"></div>
+    </div>
+
+    <div class="section" id="publish-section">
+      <h2>3. Publish to YouTube</h2>
+      <div id="publish-section-body"></div>
+    </div>
+
+    <div class="section" id="repurpose-section">
+      <h2>4. Repurpose into short-form clips</h2>
+      <div id="repurpose-section-body"></div>
+    </div>
+  </div>
+</main>
+
+<script src="videos.js"></script>
+</body>
+</html>
