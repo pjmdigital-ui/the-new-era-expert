@@ -29,6 +29,20 @@ id = "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
 binding = "MEDIA"
 bucket_name = "new-era-expert-media"
 
+# ─── Workers AI — Whisper transcription for repurpose clip selection ─────
+[ai]
+binding = "AI"
+
+# ─── Media Transformations — clip cut, vertical crop, audio extraction ───
+# The R2 bucket above is already bound as "MEDIA" — this binding MUST use a
+# different name to avoid colliding with it. See lib/media-transform.js.
+# Verify this [media] block's shape and the minimum wrangler version it
+# needs against the devDependency pin below before first deploy — this is
+# a newer Cloudflare feature, not yet smoke-tested against this repo's
+# actual toolchain.
+[media]
+binding = "MEDIA_TRANSFORM"
+
 # ─── Environment variables — non-secret config ────────────────────────────────
 [vars]
 PLATFORM_NAME = "The New Era Expert"
@@ -42,6 +56,14 @@ PUBLISHING_CADENCE_PER_WEEK = "2"
 THUMBNAIL_MAX_BYTES = "2097152"
 # YouTube videos.insert snippet.categoryId — "27" is Education.
 YOUTUBE_UPLOAD_CATEGORY_ID = "27"
+# Public base URL for the MEDIA R2 bucket — Instagram's Reels publish flow
+# is a PULL model (it fetches the clip from a URL rather than accepting a
+# push-upload like YouTube/TikTok), so R2's default private access won't
+# work. Set this only after enabling public access on the bucket (R2's
+# r2.dev subdomain or a custom domain) in the Cloudflare dashboard — same
+# category of one-time setup step as creating the KV namespace/R2 bucket
+# themselves. See lib/instagram-publish.js and functions/api/repurpose/publish.js.
+MEDIA_PUBLIC_BASE_URL = "REPLACE_WITH_REAL_PUBLIC_R2_URL"
 
 # ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
 # CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
@@ -52,6 +74,10 @@ YOUTUBE_UPLOAD_CATEGORY_ID = "27"
 # YOUTUBE_CLIENT_ID / YOUTUBE_CLIENT_SECRET / YOUTUBE_REFRESH_TOKEN — publish API
 # TIKTOK_ACCESS_TOKEN   — Content Posting API
 # INSTAGRAM_ACCESS_TOKEN — Graph API
+# INSTAGRAM_USER_ID     — the Instagram professional/business account id the
+#                         Graph API calls operate on (required alongside the
+#                         access token — Meta's API takes it as a URL path
+#                         segment, not just an auth header)
 # (LinkedIn: no reliable organic-video API — dashboard prepares captions,
 #  publish is a manual copy-paste step until/unless a LinkedIn API
 #  partnership exists. See README "Known limitations.")
