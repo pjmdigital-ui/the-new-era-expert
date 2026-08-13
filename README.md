@@ -83,19 +83,55 @@ data rather than assumption.
   drawn in code via SVG with a hard `textLength` constraint so it can't
   overflow the frame even if the rendering environment substitutes a
   different font than requested. Tested.
+- **`lib/topic-agent.js`** — demand scoring: searches the YouTube Data API
+  for videos matching a topic, scores by view count (log-scaled so one
+  viral outlier can't dominate) + recency + match count. The scoring math
+  is a pure function tested with mocked data; the live API calls are
+  tested against an injectable mock fetch, since there's no real API key
+  configured yet. Needs `YOUTUBE_DATA_API_KEY` (a simple read-only Google
+  Cloud Console key — not the OAuth credential the publish flow needs).
+- **`lib/topics-store.js`** — the single KV read/write path every route
+  goes through, so the topic list can never fork into two different copies.
+- **`data/seed-topics.json`** — all 42 candidate topics from
+  `strategy-notes/2026-08-filming-source-material.md`, structured to match
+  what `topic-ranker.js` expects, `demandScore: 0` until a refresh runs.
+- **`functions/api/topics/`** — the three routes the dashboard actually
+  calls: `index.js` (GET, ranked list), `cover.js` (POST, mark a topic
+  filmed), `refresh.js` (POST, re-score a batch against real YouTube
+  data). Split into separate files because Cloudflare Pages Functions
+  routes by file path — a single `topics.js` handling `/api/topics/cover`
+  as a sub-path returned 405 in local testing; this file layout is the
+  actual fix, not a workaround.
+- **`src/index.html` + `src/app.js`** — the dashboard page itself: ranked
+  topic table, "film this next" callout, a refresh button, mark-covered
+  per row.
+
+**All of the above has been run, not just written.** `node --test
+lib/*.test.js` passes 25/25. Beyond unit tests, `wrangler pages dev` was
+booted locally and hit with real HTTP requests against the compiled
+Worker + Functions + local-simulated KV: the dashboard page loads, GET
+`/api/topics` returns the seeded, ranked list, and POST `/api/topics/cover`
+correctly demotes a topic and advances `nextUp` — verified end to end, not
+assumed from reading the code.
 
 ## Known open pieces — not yet built
 
 - **SVG-to-raster rendering.** `thumbnail.js` builds the SVG markup for the
   text layer but doesn't rasterize it — Cloudflare Workers doesn't support
   native canvas/sharp bindings. Needs a WASM-based SVG renderer (e.g.
-  resvg-wasm) or an external rendering service, picked and wired into
-  `functions/api/generate-metadata.js` once decided.
-- **Dashboard UI** (`src/`) — not started.
-- **API endpoints** (`functions/api/`) — upload, generate-metadata, publish-youtube, repurpose, topics — not started.
+  resvg-wasm) or an external rendering service, picked and wired in once
+  the upload/generate-metadata endpoint gets built.
+- **Upload, generate-metadata, publish-youtube, repurpose endpoints** — not started. Topics is the only functional slice of the API so far.
 - **Actual Cloudflare resources.** `wrangler.toml` has placeholder KV
   namespace ID and R2 bucket name — need to be created for real in the
-  Cloudflare dashboard before first deploy.
+  Cloudflare dashboard before first deploy. Local testing so far has only
+  used wrangler's local-simulated KV, not a real namespace.
+- **YOUTUBE_DATA_API_KEY isn't set anywhere yet** — the refresh endpoint
+  is built and tested against mocked responses, but has never made a real
+  call to the actual YouTube API. Get a key from Google Cloud Console
+  (Enable "YouTube Data API v3" → Credentials → API Key) and set it via
+  `wrangler pages secret put YOUTUBE_DATA_API_KEY` before trusting real
+  demand scores.
 - **Platform auto-publish decisions.** TikTok and Instagram both have real
   content-posting APIs. LinkedIn's organic video API access is restrictive —
   plan on a manual copy-paste fallback (captions ready in the dashboard,

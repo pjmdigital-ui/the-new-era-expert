@@ -38,6 +38,9 @@ PUBLISHING_CADENCE_PER_WEEK = "2"
 # ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
 # CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
 # IMAGE_GEN_API_KEY     — thumbnail background generation (no-text prompts only, see lib/thumbnail.js)
+# YOUTUBE_DATA_API_KEY  — topic demand-scoring (search.list + videos.list, read-only).
+#                         Simple Google Cloud Console API key — NOT the same credential
+#                         as the OAuth flow below, which is only needed for publishing.
 # YOUTUBE_CLIENT_ID / YOUTUBE_CLIENT_SECRET / YOUTUBE_REFRESH_TOKEN — publish API
 # TIKTOK_ACCESS_TOKEN   — Content Posting API
 # INSTAGRAM_ACCESS_TOKEN — Graph API
