@@ -40,6 +40,8 @@ PUBLISHING_CADENCE_PER_WEEK = "2"
 # with a clear error instead of a confusing rejection later from
 # thumbnails.set in publish-youtube.js.
 THUMBNAIL_MAX_BYTES = "2097152"
+# YouTube videos.insert snippet.categoryId — "27" is Education.
+YOUTUBE_UPLOAD_CATEGORY_ID = "27"
 
 # ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
 # CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
