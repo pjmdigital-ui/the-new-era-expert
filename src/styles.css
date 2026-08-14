@@ -77,6 +77,21 @@ tr.clickable { cursor: pointer; }
   color: var(--muted);
 }
 .cover-btn { font-size: 12px; padding: 4px 10px; }
+.source-tag { border-color: var(--gold); color: var(--gold-bright); }
+
+/* ─── Discovered-topic candidate cards ────────────────────────────── */
+.candidate-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.candidate-card .title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.candidate-card .meta-row { display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.candidate-card .rationale { color: var(--muted); font-size: 12px; font-style: italic; margin-bottom: 10px; }
+.candidate-card .actions { display: flex; gap: 8px; }
+.candidate-card .actions button { font-size: 12px; padding: 4px 10px; }
 .empty-state { color: var(--muted); padding: 40px; text-align: center; }
 .error-banner {
   background: #3a1414;

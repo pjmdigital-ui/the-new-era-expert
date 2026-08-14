@@ -80,11 +80,34 @@ data rather than assumption.
 - **`lib/topics-store.js`** — the single KV read/write path for topic data.
 - **`data/seed-topics.json`** — all 42 candidate topics from the filming
   source material.
-- **`functions/api/topics/`** — `index.js` (GET, ranked list), `cover.js`
-  (POST, mark a topic filmed), `refresh.js` (POST, re-score against real
-  YouTube data).
+- **`functions/api/topics/`** — `index.js` (GET, ranked list + any
+  discovered candidates awaiting review), `cover.js` (POST, mark a topic
+  filmed), `refresh.js` (POST, re-score against real YouTube data),
+  `discover.js` (POST, see below), `decide-candidate.js` (POST, approve/
+  reject a discovered candidate).
+- **`lib/topic-discovery.js`** — real search-driven topic discovery, so the
+  list isn't only the 42 hand-written belief-ladder topics. Tries Google's
+  public YouTube search-autocomplete endpoint first (the most literal
+  signal for "what people actually type") — **this is unofficial and
+  undocumented**, no key, no SLA, could change shape without notice, the
+  same endpoint widely used by YouTube SEO tools (TubeBuddy, VidIQ). If it
+  fails, `functions/api/topics/discover.js` falls back automatically to the
+  already-integrated, officially documented `search.list` (via
+  `topic-agent.js`'s `fetchYoutubeMatches`), so the feature degrades to a
+  fully-documented signal rather than breaking outright. Either signal
+  feeds a Claude call that proposes new topic titles, classifies each into
+  one of the same 7 belief-ladder categories the seed list uses, and writes
+  a plain-English rationale a human can actually evaluate. New topics land
+  as `status: 'candidate'` — excluded from the ranked list until approved
+  via `decide-candidate.js` — so nothing AI-suggested ships into the
+  content plan without a human glance, same principle as the video
+  pipeline's clip-approval queue.
 - **`src/index.html` + `src/app.js`** — the dashboard page: ranked topic
-  table, "film this next" callout, refresh button, mark-covered per row.
+  table, "film this next" callout, refresh button, mark-covered per row,
+  "Discover new topics" button, and a "Discovered — needs review" section
+  with Approve/Reject per candidate. Topics that originated from discovery
+  carry a small "Discovered" tag once approved into the main list, so
+  provenance stays visible.
 
 **Video pipeline** (upload → metadata → publish → repurpose):
 
@@ -175,10 +198,14 @@ no framework, matching the topics dashboard's existing style):
   response shape.
 
 **All lib/ logic has been run, not just written** — `node --test lib/*.test.js`
-passes 85/85 (64 from the video-pipeline backend — upload, metadata,
-publish-youtube, repurpose — plus 21 from the pre-existing topics slice:
-`topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`),
-with every external API call (Claude, OpenAI image gen, YouTube, TikTok,
+passes 92/92 (64 from the video-pipeline backend — upload, metadata,
+publish-youtube, repurpose — plus 21 from the pre-existing topics slice
+(`topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`)
+plus 7 from `topic-discovery.test.js`), with `fetchSearchSuggestions` also
+verified live against the real, unofficial suggest endpoint (not just the
+mocked unit tests) to confirm the response-parsing logic matches what the
+endpoint actually returns today. Every external API call (Claude, OpenAI
+image gen, YouTube, TikTok,
 Instagram) tested against an injectable mock `fetch`. **The upload +
 videos-list/detail + media-proxy routes have now also been smoke-tested
 end-to-end against a real `wrangler pages dev` server** (a real multipart
@@ -203,6 +230,12 @@ without them) — do not commit `wrangler.toml` with those blocks removed.
 
 ## Known open pieces — not yet built or not yet verified
 
+- **Topic discovery's primary signal is an unofficial Google endpoint.**
+  `lib/topic-discovery.js`'s `fetchSearchSuggestions` hits
+  `suggestqueries.google.com` — no key, no SLA, undocumented, could change
+  shape without notice. The automatic fallback to the officially documented
+  `search.list` means the feature won't outright break if it does, but
+  revisit if it ever silently stops returning results.
 - **`wrangler pages dev` smoke test for the AI-dependent routes.** Upload,
   the videos list/detail routes, and the media proxy are now verified
   end-to-end (see above). Metadata generation, publish-youtube, and
@@ -220,11 +253,9 @@ without them) — do not commit `wrangler.toml` with those blocks removed.
   `MEDIA_TRANSFORM` binding follows Cloudflare's documented Media
   Transformations API but hasn't been confirmed against this repo's
   pinned `wrangler ^4.0.0`.
-- **R2 public access for Instagram.** Instagram's Reels publish is a pull
-  model — it fetches the clip from a URL rather than accepting a
-  push-upload. `MEDIA_PUBLIC_BASE_URL` needs the `MEDIA` R2 bucket's
-  public access (r2.dev subdomain or a custom domain) enabled in the
-  Cloudflare dashboard before it resolves to anything real.
+- ~~R2 public access for Instagram~~ **Done.** Public Development URL is
+  enabled on the `MEDIA` bucket and `MEDIA_PUBLIC_BASE_URL` is set for
+  real.
 - **`repurpose/generate.js`'s wall-clock duration is unverified.** It
   chains audio extraction → transcription → Claude → N clip cuts inside
   one synchronous request. Prototype against a real 10-minute video before
@@ -233,9 +264,9 @@ without them) — do not commit `wrangler.toml` with those blocks removed.
 - **TikTok/Instagram/YouTube publish flows have never made a real call.**
   All three are built and unit-tested against mocked responses only — no
   access tokens are configured yet.
-- **Actual Cloudflare resources.** `wrangler.toml` has placeholder KV
-  namespace ID, R2 bucket name, and public R2 base URL — need to be
-  created for real in the Cloudflare dashboard before first deploy.
+- ~~Actual Cloudflare resources~~ **Done.** Real KV namespace, R2 bucket,
+  and the `dashboard.neweraexpert.com` custom domain are all live —
+  `wrangler.toml` no longer has placeholder IDs.
 - **No API keys/secrets are set anywhere yet** — `CLAUDE_API_KEY`,
   `IMAGE_GEN_API_KEY`, `YOUTUBE_DATA_API_KEY`,
   `YOUTUBE_CLIENT_ID`/`_SECRET`/`_REFRESH_TOKEN`, `TIKTOK_ACCESS_TOKEN`,
@@ -268,7 +299,7 @@ without them) — do not commit `wrangler.toml` with those blocks removed.
 ```bash
 npm install
 npm run topics:test    # runs lib/topic-ranker.test.js only
-node --test lib/*.test.js   # runs the full test suite (85 tests)
+node --test lib/*.test.js   # runs the full test suite (92 tests)
 npm run dev             # local Cloudflare Pages dev server
 npm run deploy           # wrangler pages deploy
 ```

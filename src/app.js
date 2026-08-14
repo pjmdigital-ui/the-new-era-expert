@@ -14,10 +14,13 @@ const els = {
   nextUpTitle: document.getElementById('next-up-title'),
   nextUpMeta: document.getElementById('next-up-meta'),
   refreshBtn: document.getElementById('refresh-btn'),
+  discoverBtn: document.getElementById('discover-btn'),
   reloadBtn: document.getElementById('reload-btn'),
   table: document.getElementById('topics-table'),
   tbody: document.getElementById('topics-body'),
   emptyState: document.getElementById('empty-state'),
+  candidatesSection: document.getElementById('candidates-section'),
+  candidatesBody: document.getElementById('candidates-body'),
 };
 
 function showError(message) {
@@ -30,13 +33,15 @@ function clearError() {
 }
 
 function renderTopics(data) {
-  const { topics, nextUp } = data;
+  const { topics, nextUp, candidates } = data;
 
   if (nextUp) {
     els.nextUpCard.style.display = 'block';
     els.nextUpTitle.textContent = nextUp.title;
     els.nextUpMeta.textContent = `${ENTRY_POINT_LABELS[nextUp.entryPoint] || nextUp.entryPoint} · covered ${nextUp.timesCovered}x · demand score ${nextUp.demandScore}`;
   }
+
+  renderCandidates(candidates || []);
 
   if (!topics || topics.length === 0) {
     els.table.style.display = 'none';
@@ -51,9 +56,10 @@ function renderTopics(data) {
 
   for (const topic of topics) {
     const row = document.createElement('tr');
+    const sourceTag = topic.source === 'discovered' ? '<span class="entry-tag source-tag">Discovered</span>' : '';
     row.innerHTML = `
       <td>${escapeHtml(topic.title)}</td>
-      <td><span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[topic.entryPoint] || topic.entryPoint)}</span></td>
+      <td><span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[topic.entryPoint] || topic.entryPoint)}</span> ${sourceTag}</td>
       <td>${topic.timesCovered}</td>
       <td>${topic.demandScore}</td>
       <td><button class="cover-btn" data-id="${escapeHtml(topic.id)}">Mark covered</button></td>
@@ -63,6 +69,37 @@ function renderTopics(data) {
 
   els.tbody.querySelectorAll('.cover-btn').forEach(btn => {
     btn.addEventListener('click', () => markCovered(btn.dataset.id));
+  });
+}
+
+function renderCandidates(candidates) {
+  if (!candidates || candidates.length === 0) {
+    els.candidatesSection.style.display = 'none';
+    els.candidatesBody.innerHTML = '';
+    return;
+  }
+
+  els.candidatesSection.style.display = 'block';
+  els.candidatesBody.innerHTML = candidates.map(candidate => `
+    <div class="candidate-card">
+      <div class="title">${escapeHtml(candidate.title)}</div>
+      <div class="meta-row">
+        <span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[candidate.entryPoint] || candidate.entryPoint)}</span>
+        <span>Demand score: ${candidate.demandScore}</span>
+      </div>
+      <div class="rationale">${escapeHtml(candidate.rationale)}</div>
+      <div class="actions">
+        <button class="approve-candidate-btn" data-id="${escapeHtml(candidate.id)}">Approve</button>
+        <button class="reject-candidate-btn" data-id="${escapeHtml(candidate.id)}">Reject</button>
+      </div>
+    </div>
+  `).join('');
+
+  els.candidatesBody.querySelectorAll('.approve-candidate-btn').forEach(btn => {
+    btn.addEventListener('click', () => decideCandidate(btn.dataset.id, true));
+  });
+  els.candidatesBody.querySelectorAll('.reject-candidate-btn').forEach(btn => {
+    btn.addEventListener('click', () => decideCandidate(btn.dataset.id, false));
   });
 }
 
@@ -98,6 +135,39 @@ async function refreshDemandScores() {
   }
 }
 
+async function discoverTopics() {
+  clearError();
+  els.discoverBtn.disabled = true;
+  els.discoverBtn.textContent = 'Discovering…';
+  try {
+    const res = await fetch('/api/topics/discover', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Discovery failed: ${res.status}`);
+    await loadTopics();
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    els.discoverBtn.disabled = false;
+    els.discoverBtn.textContent = 'Discover new topics';
+  }
+}
+
+async function decideCandidate(id, approved) {
+  clearError();
+  try {
+    const res = await fetch('/api/topics/decide-candidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, approved }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Failed to decide candidate: ${res.status}`);
+    renderTopics(data);
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
 async function markCovered(id) {
   clearError();
   try {
@@ -121,6 +191,7 @@ function escapeHtml(str) {
 }
 
 els.refreshBtn.addEventListener('click', refreshDemandScores);
+els.discoverBtn.addEventListener('click', discoverTopics);
 els.reloadBtn.addEventListener('click', loadTopics);
 
 loadTopics();
