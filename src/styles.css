@@ -23,8 +23,15 @@ header {
   flex-wrap: wrap;
   gap: 12px;
 }
-h1 { font-size: 20px; margin: 0; letter-spacing: 0.02em; }
-h1 span { color: var(--gold-bright); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo { height: 40px; width: auto; display: block; }
+.page-label {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+}
 main { max-width: 900px; margin: 0 auto; padding: 32px; }
 .next-up {
   background: var(--card);
