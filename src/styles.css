@@ -39,6 +39,12 @@ main { max-width: 900px; margin: 0 auto; padding: 32px; }
   border-radius: 10px;
   padding: 20px 24px;
   margin-bottom: 28px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.next-up:hover {
+  border-color: var(--gold-bright);
+  background: rgba(212,175,55,0.08);
 }
 .next-up .label {
   text-transform: uppercase;

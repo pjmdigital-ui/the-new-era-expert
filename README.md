@@ -81,10 +81,11 @@ data rather than assumption.
 - **`data/seed-topics.json`** — all 42 candidate topics from the filming
   source material.
 - **`functions/api/topics/`** — `index.js` (GET, ranked list + any
-  discovered candidates awaiting review), `cover.js` (POST, mark a topic
-  filmed), `refresh.js` (POST, re-score against real YouTube data),
+  discovered candidates awaiting review), `[id].js` (GET, one full topic
+  record, including its slide deck once generated), `cover.js` (POST, mark
+  a topic filmed), `refresh.js` (POST, re-score against real YouTube data),
   `discover.js` (POST, see below), `decide-candidate.js` (POST, approve/
-  reject a discovered candidate).
+  reject a discovered candidate), `generate-deck.js` (POST, see below).
 - **`lib/topic-discovery.js`** — real search-driven topic discovery, so the
   list isn't only the 42 hand-written belief-ladder topics. Tries Google's
   public YouTube search-autocomplete endpoint first (the most literal
@@ -108,6 +109,32 @@ data rather than assumption.
   with Approve/Reject per candidate. Topics that originated from discovery
   carry a small "Discovered" tag once approved into the main list, so
   provenance stays visible.
+- **`lib/slide-deck.js`** — generates the on-camera slide deck behind the
+  "film this next" card, which is now clickable. This is a literal
+  word-for-word script, not internal instruction bullets — every slide's
+  `body` is the exact sentence the presenter says out loud (first person,
+  natural spoken phrasing), since it's meant to be read straight into the
+  camera. Format matches an existing production deck from the sibling
+  Influence Academy system (fetched and inspected directly, not
+  reverse-engineered from memory): full-screen dark stage, gold accent
+  line, short punchy headline + full spoken body per slide, an optional
+  presenter-only "DELIVERY" note visually separated from the script text,
+  click/arrow-key navigation. The prompt ties each deck's arc to the
+  topic's `entryPoint` (what belief this specific video needs to advance)
+  and closes with a natural mention of the knowledge-based tool hub
+  category and MyToolHub, per the brand-voice requirement above.
+  `pickSizeBand` is a pure, deterministic function (not left to the model)
+  choosing a font-size band per slide from body length, so nothing can
+  overflow the viewport regardless of what gets generated.
+- **`functions/api/topics/generate-deck.js`** — generates (or returns the
+  already-cached) deck for a topic; only calls Claude again if
+  `regenerate:true` is passed, so reopening the same "film this next" card
+  doesn't re-spend a Claude call every time.
+- **`src/slides.html` + `src/slides.js`** (new page, `?id=<topicId>`) — the
+  full-screen presenter view itself. Deliberately its own near-black visual
+  world rather than the dashboard's purple theme, since it's meant to be
+  read from on camera, not browsed. This is the first full-screen/overlay
+  view in the codebase — there was no existing modal pattern to reuse.
 
 **Video pipeline** (upload → metadata → publish → repurpose):
 
@@ -198,11 +225,12 @@ no framework, matching the topics dashboard's existing style):
   response shape.
 
 **All lib/ logic has been run, not just written** — `node --test lib/*.test.js`
-passes 92/92 (64 from the video-pipeline backend — upload, metadata,
+passes 98/98 (64 from the video-pipeline backend — upload, metadata,
 publish-youtube, repurpose — plus 21 from the pre-existing topics slice
-(`topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`)
-plus 7 from `topic-discovery.test.js`), with `fetchSearchSuggestions` also
-verified live against the real, unofficial suggest endpoint (not just the
+(`topic-agent.test.js`, `topic-ranker.test.js`, `youtube-copy-rules.test.js`),
+plus 7 from `topic-discovery.test.js`, plus 6 from `slide-deck.test.js`),
+with `fetchSearchSuggestions` also verified live against the real,
+unofficial suggest endpoint (not just the
 mocked unit tests) to confirm the response-parsing logic matches what the
 endpoint actually returns today. Every external API call (Claude, OpenAI
 image gen, YouTube, TikTok,
@@ -299,7 +327,7 @@ without them) — do not commit `wrangler.toml` with those blocks removed.
 ```bash
 npm install
 npm run topics:test    # runs lib/topic-ranker.test.js only
-node --test lib/*.test.js   # runs the full test suite (92 tests)
+node --test lib/*.test.js   # runs the full test suite (98 tests)
 npm run dev             # local Cloudflare Pages dev server
 npm run deploy           # wrangler pages deploy
 ```

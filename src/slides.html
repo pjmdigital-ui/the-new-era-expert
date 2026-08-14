@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The New Era Expert — Slide Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    color: #f2f2f2;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, sans-serif;
+    overflow: hidden;
+  }
+  .stage { width: 100vw; height: 100vh; position: relative; }
+  section.slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+  }
+  section.slide.active { display: flex; }
+  .text-pane {
+    padding: 8vh 12vw 10vh 12vw;
+    display: flex; flex-direction: column; justify-content: center;
+    background: #0a0a0a;
+    overflow: hidden;
+    width: 100%;
+    flex: 1;
+  }
+  .gold-line { width: 5vw; height: 4px; background: #daa520; margin-bottom: 2.4vh; }
+  .headline {
+    font-weight: 800;
+    color: #ffffff;
+    max-width: 24em;
+    letter-spacing: -0.015em;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .body {
+    color: #c8c8c8;
+    max-width: 38em;
+    font-weight: 400;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .slide.size-lg .headline { font-size: 4.2vw; line-height: 1.08; margin-bottom: 3.0vh; }
+  .slide.size-lg .body     { font-size: 1.85vw; line-height: 1.50; }
+  .slide.size-md .headline { font-size: 3.4vw; line-height: 1.10; margin-bottom: 2.4vh; }
+  .slide.size-md .body     { font-size: 1.55vw; line-height: 1.50; }
+  .slide.size-sm .headline { font-size: 2.6vw; line-height: 1.12; margin-bottom: 1.8vh; }
+  .slide.size-sm .body     { font-size: 1.30vw; line-height: 1.45; }
+  .guidance {
+    margin-top: 2.2vh;
+    padding-top: 1.6vh;
+    border-top: 1px solid rgba(218,165,32,0.25);
+    color: #8a8a8a;
+    font-size: 0.95vw;
+    font-style: italic;
+    line-height: 1.45;
+  }
+  .guidance::before {
+    content: "DELIVERY ↘  ";
+    color: #daa520;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .footer-bar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 1.6vh 6vw;
+    display: flex; justify-content: space-between; align-items: center;
+    color: #555; font-size: 0.95vw;
+    border-top: 1px solid #1a1a1a;
+    background: #050505;
+    z-index: 10;
+  }
+  .footer-bar .kw { color: #daa520; letter-spacing: 0.05em; font-weight: 700; max-width: 60vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .footer-bar .count { color: #888; font-variant-numeric: tabular-nums; }
+
+  .nav {
+    position: fixed; top: 20px; right: 20px;
+    z-index: 50;
+    background: rgba(0,0,0,0.65);
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: #daa520;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .nav .hint { color: #888; font-weight: 400; margin-left: 10px; }
+
+  .controls {
+    position: fixed; top: 20px; left: 20px;
+    z-index: 50;
+    display: flex; gap: 8px;
+  }
+  .controls a, .controls button {
+    background: rgba(0,0,0,0.65);
+    border: 1px solid rgba(218,165,32,0.3);
+    color: #ccc;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .controls a:hover, .controls button:hover { border-color: #daa520; color: #daa520; }
+  .controls button:disabled { opacity: 0.5; cursor: default; }
+
+  .status-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 0 10vw;
+  }
+  .status-screen .message { font-size: 1.4vw; color: #ccc; max-width: 40em; }
+  .status-screen a { color: #daa520; font-size: 1vw; }
+</style>
+</head>
+<body>
+  <div class="controls">
+    <a href="index.html">← Exit</a>
+    <button id="regenerate-btn">Regenerate</button>
+  </div>
+  <div class="nav"><span id="counter"></span><span class="hint">← → keys</span></div>
+  <div id="status-screen" class="status-screen">
+    <div class="message" id="status-message">Loading…</div>
+  </div>
+  <div class="stage" id="stage" style="display:none;"></div>
+  <div class="footer-bar" id="footer-bar" style="display:none;">
+    <div class="kw" id="footer-title"></div>
+    <div class="count" id="footer-count"></div>
+  </div>
+<script src="slides.js"></script>
+</body>
+</html>

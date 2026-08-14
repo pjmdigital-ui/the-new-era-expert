@@ -37,8 +37,9 @@ function renderTopics(data) {
 
   if (nextUp) {
     els.nextUpCard.style.display = 'block';
+    els.nextUpCard.dataset.id = nextUp.id;
     els.nextUpTitle.textContent = nextUp.title;
-    els.nextUpMeta.textContent = `${ENTRY_POINT_LABELS[nextUp.entryPoint] || nextUp.entryPoint} · covered ${nextUp.timesCovered}x · demand score ${nextUp.demandScore}`;
+    els.nextUpMeta.textContent = `${ENTRY_POINT_LABELS[nextUp.entryPoint] || nextUp.entryPoint} · covered ${nextUp.timesCovered}x · demand score ${nextUp.demandScore} · click to open your script`;
   }
 
   renderCandidates(candidates || []);
@@ -193,5 +194,10 @@ function escapeHtml(str) {
 els.refreshBtn.addEventListener('click', refreshDemandScores);
 els.discoverBtn.addEventListener('click', discoverTopics);
 els.reloadBtn.addEventListener('click', loadTopics);
+els.nextUpCard.addEventListener('click', () => {
+  if (els.nextUpCard.dataset.id) {
+    window.location.href = `slides.html?id=${encodeURIComponent(els.nextUpCard.dataset.id)}`;
+  }
+});
 
 loadTopics();
