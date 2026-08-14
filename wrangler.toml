@@ -63,7 +63,7 @@ YOUTUBE_UPLOAD_CATEGORY_ID = "27"
 # r2.dev subdomain or a custom domain) in the Cloudflare dashboard — same
 # category of one-time setup step as creating the KV namespace/R2 bucket
 # themselves. See lib/instagram-publish.js and functions/api/repurpose/publish.js.
-MEDIA_PUBLIC_BASE_URL = "REPLACE_WITH_REAL_PUBLIC_R2_URL"
+MEDIA_PUBLIC_BASE_URL = "https://pub-55f06eb7c45e4fd2b02f298cbf53dd09.r2.dev"
 
 # ─── Secrets (set via `wrangler pages secret put <NAME>`, never committed) ────
 # CLAUDE_API_KEY        — title/description/caption generation, transcript clip selection
