@@ -26,6 +26,7 @@ const els = {
   detailView: document.getElementById('detail-view'),
   fileInput: document.getElementById('file-input'),
   uploadBtn: document.getElementById('upload-btn'),
+  uploadDropzone: document.getElementById('upload-dropzone'),
   uploadProgressWrap: document.getElementById('upload-progress-wrap'),
   uploadProgressFill: document.getElementById('upload-progress-fill'),
   uploadProgressLabel: document.getElementById('upload-progress-label'),
@@ -187,6 +188,10 @@ async function onUploadClick() {
     showError('Choose a file first.');
     return;
   }
+  startUpload(file);
+}
+
+async function startUpload(file) {
   clearError();
   els.uploadBtn.disabled = true;
   els.uploadProgressWrap.style.display = 'block';
@@ -673,6 +678,40 @@ async function onPublishClip(videoId, clipId, platform) {
     showError(err.message);
   }
 }
+
+// ─── Drag-and-drop upload ─────────────────────────────────────────────
+// Dragging over the whole document (not just the dropzone) so a file
+// dropped slightly outside the box doesn't silently navigate the tab away
+// — the browser's default for an undropped file is to open it.
+
+let dragDepth = 0;
+
+document.addEventListener('dragenter', e => {
+  if (!els.uploadDropzone || els.listView.style.display === 'none') return;
+  e.preventDefault();
+  dragDepth++;
+  els.uploadDropzone.classList.add('drag-over');
+});
+
+document.addEventListener('dragover', e => {
+  e.preventDefault();
+});
+
+document.addEventListener('dragleave', () => {
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0 && els.uploadDropzone) {
+    els.uploadDropzone.classList.remove('drag-over');
+  }
+});
+
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  dragDepth = 0;
+  if (els.uploadDropzone) els.uploadDropzone.classList.remove('drag-over');
+  if (els.listView.style.display === 'none') return;
+  const file = e.dataTransfer.files[0];
+  if (file) startUpload(file);
+});
 
 // ─── Wire up static elements ────────────────────────────────────────────
 

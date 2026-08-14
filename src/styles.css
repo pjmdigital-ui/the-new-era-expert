@@ -144,6 +144,19 @@ input[type="text"], input[type="file"], select, textarea {
 }
 input[type="text"] { flex: 1; min-width: 200px; }
 
+/* ─── Drag-and-drop upload zone ───────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.dropzone.drag-over {
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.06);
+}
+.dropzone .hint { margin-top: 8px; }
+
 /* ─── Upload progress ─────────────────────────────────────────────────── */
 .progress-bar {
   height: 8px;
