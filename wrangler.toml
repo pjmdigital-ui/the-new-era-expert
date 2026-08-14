@@ -22,7 +22,7 @@ pages_build_output_dir = "./src"
 # reference project.
 [[kv_namespaces]]
 binding = "CONTENT_KV"
-id = "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+id = "9c2571ce753d4e94be619f5805929892"
 
 # ─── R2 — video files, generated thumbnails, exported clips ──────────────────
 [[r2_buckets]]
