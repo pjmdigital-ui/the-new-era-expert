@@ -58,10 +58,9 @@ function renderDeck(topic) {
   els.stage.innerHTML = slides.map((slide, i) => `
     <section class="slide size-${escapeHtml(slide.size || 'md')}${i === 0 ? ' active' : ''}" data-index="${i}">
       <div class="text-pane">
-        <div class="gold-line"></div>
+        <div class="accent-line"></div>
         <div class="headline">${escapeHtml(slide.headline)}</div>
         <div class="body">${escapeHtml(slide.body)}</div>
-        ${slide.guidance ? `<div class="guidance">${escapeHtml(slide.guidance)}</div>` : ''}
       </div>
     </section>
   `).join('');
