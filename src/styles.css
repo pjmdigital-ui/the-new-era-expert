@@ -24,7 +24,7 @@ header {
   gap: 12px;
 }
 .brand { display: flex; align-items: center; gap: 14px; }
-.logo { height: 64px; width: auto; display: block; }
+.logo { height: 96px; width: auto; display: block; }
 .page-label {
   color: var(--muted);
   font-size: 13px;
