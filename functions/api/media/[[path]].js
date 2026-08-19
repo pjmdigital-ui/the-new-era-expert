@@ -22,6 +22,14 @@ const EXTENSION_CONTENT_TYPES = {
   m4a: 'audio/mp4',
 };
 
+// Error responses must never be cached by Cloudflare's edge -- a stale
+// negative result (e.g. "no object at this key") would keep being served
+// long after the underlying cause is fixed, since nothing about a 404
+// naturally expires the way real content changes do. Confirmed live: a
+// 404 here defaulted to a multi-hour edge cache with no explicit directive
+// telling it not to.
+const NO_STORE = { 'Cache-Control': 'no-store' };
+
 export async function onRequestGet(context) {
   const { env, params } = context;
   const segments = Array.isArray(params.path) ? params.path : [params.path];
@@ -32,12 +40,12 @@ export async function onRequestGet(context) {
   const key = segments.map(decodeURIComponent).join('/');
 
   if (!ALLOWED_PREFIXES.some(prefix => key.startsWith(prefix))) {
-    return Response.json({ error: `Refusing to serve key outside ${ALLOWED_PREFIXES.join(', ')}` }, { status: 403 });
+    return Response.json({ error: `Refusing to serve key outside ${ALLOWED_PREFIXES.join(', ')}` }, { status: 403, headers: NO_STORE });
   }
 
   const object = await env.MEDIA.get(key);
   if (!object) {
-    return Response.json({ error: `No object at "${key}"` }, { status: 404 });
+    return Response.json({ error: `No object at "${key}"` }, { status: 404, headers: NO_STORE });
   }
 
   const extension = key.split('.').pop().toLowerCase();
