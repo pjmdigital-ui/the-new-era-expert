@@ -495,7 +495,10 @@ function renderMetadataSection(video) {
 
   els.metadataSectionBody.innerHTML = html;
 
-  document.getElementById('link-topic-btn').addEventListener('click', () => onLinkTopic(video.id));
+  const linkTopicBtn = document.getElementById('link-topic-btn');
+  if (linkTopicBtn) {
+    linkTopicBtn.addEventListener('click', () => onLinkTopic(video.id));
+  }
   document.getElementById('generate-metadata-btn').addEventListener('click', () => onGenerateMetadata(video.id, video.topicTitle));
 
   if (hasOptions) {
