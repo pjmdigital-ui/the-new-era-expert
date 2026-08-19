@@ -25,7 +25,11 @@ const EXTENSION_CONTENT_TYPES = {
 export async function onRequestGet(context) {
   const { env, params } = context;
   const segments = Array.isArray(params.path) ? params.path : [params.path];
-  const key = segments.join('/');
+  // Cloudflare Pages' [[path]] catch-all does NOT auto-decode percent-
+  // encoded segments (verified live) -- without this, a filename with
+  // spaces/commas (e.g. an image exported from ChatGPT) fails to look up
+  // in R2 because the key still has the raw %20/%2C in it.
+  const key = segments.map(decodeURIComponent).join('/');
 
   if (!ALLOWED_PREFIXES.some(prefix => key.startsWith(prefix))) {
     return Response.json({ error: `Refusing to serve key outside ${ALLOWED_PREFIXES.join(', ')}` }, { status: 403 });
