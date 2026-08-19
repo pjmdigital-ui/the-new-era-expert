@@ -10,24 +10,35 @@ const { scoreTopic, fetchYoutubeMatches } = require('../../../lib/topic-agent.js
 const { fetchSearchSuggestions, synthesizeCandidateTopics } = require('../../../lib/topic-discovery.js');
 const seedData = require('../../../data/seed-topics.json');
 
-// Symptom-level pain queries, not solution/category-level ones — someone
-// experiencing a problem searches the symptom ("why are my course sales
-// declining") long before they know the category that solves it exists.
-// A query like "knowledge based tool hub" has zero real search volume —
-// nobody searches for a category name they've never heard of. Kept two
-// solution-aware queries ("AI course creator", "turn expertise into AI
-// tool") since those describe things a more AI-aware segment of the
-// audience plausibly does search directly; dropped the rest of the
-// solution/jargon-level phrasing that used to fill out this list.
+// Validated live against the actual YouTube autocomplete endpoint
+// (gatherSignal's fetchSearchSuggestions), not guessed. Two things learned
+// doing that: (1) full symptom SENTENCES ("why isn't my course selling",
+// "course sales are declining", "low course engagement") return nothing --
+// autocomplete completes a short root, it doesn't match an already-
+// finished sentence -- so a naive "phrase the pain as a sentence" approach
+// silently produces near-empty signal despite looking reasonable on paper.
+// (2) "knowledge based tool" (the literal category name) returns
+// essentially zero relevant volume, confirming nobody searches for a
+// solution category they've never heard of. Every query below returned
+// real, on-topic completions when tested directly: ad-cost/ad-performance
+// pain as a completable root instead of a sentence ("why are my ads" ->
+// "...not converting", "...not spending"; "facebook ads cost" -> "...per
+// click/lead/purchase"), core audience identity ("coaching business", "ai
+// for coaches", "ai for consultants"), the expertise-to-product transition
+// ("productize your expertise", "monetize your expertise"), and directly
+// solution-aware queries ("AI course creator", "how to build an ai tool" --
+// the latter is close to a literal description of what MyToolHub does).
 const SEED_QUERIES = [
-  'why are my course sales declining',
-  'course completion rate low',
-  'why is my ad cost going up',
-  'low course engagement',
-  'students not finishing my course',
-  'why aren\'t people buying my course anymore',
+  'why are my ads',
+  'facebook ads cost',
+  'coaching business',
+  'scale your coaching business',
+  'productize your expertise',
+  'monetize your expertise',
   'AI course creator',
-  'turn expertise into AI tool',
+  'ai for coaches',
+  'ai for consultants',
+  'how to build an ai tool',
 ];
 
 const CANDIDATES_PER_RUN = 5;
