@@ -10,35 +10,61 @@ const { scoreTopic, fetchYoutubeMatches } = require('../../../lib/topic-agent.js
 const { fetchSearchSuggestions, synthesizeCandidateTopics } = require('../../../lib/topic-discovery.js');
 const seedData = require('../../../data/seed-topics.json');
 
-// Validated live against the actual YouTube autocomplete endpoint
-// (gatherSignal's fetchSearchSuggestions), not guessed. Two things learned
-// doing that: (1) full symptom SENTENCES ("why isn't my course selling",
-// "course sales are declining", "low course engagement") return nothing --
+// Every query below was validated live against the actual YouTube
+// autocomplete endpoint (gatherSignal's fetchSearchSuggestions) across two
+// research passes (82 candidates tested total) -- not guessed. Two things
+// learned doing that: (1) full symptom SENTENCES ("why isn't my course
+// selling", "course sales are declining") mostly return nothing --
 // autocomplete completes a short root, it doesn't match an already-
-// finished sentence -- so a naive "phrase the pain as a sentence" approach
-// silently produces near-empty signal despite looking reasonable on paper.
-// (2) "knowledge based tool" (the literal category name) returns
-// essentially zero relevant volume, confirming nobody searches for a
-// solution category they've never heard of. Every query below returned
-// real, on-topic completions when tested directly: ad-cost/ad-performance
-// pain as a completable root instead of a sentence ("why are my ads" ->
-// "...not converting", "...not spending"; "facebook ads cost" -> "...per
-// click/lead/purchase"), core audience identity ("coaching business", "ai
-// for coaches", "ai for consultants"), the expertise-to-product transition
-// ("productize your expertise", "monetize your expertise"), and directly
-// solution-aware queries ("AI course creator", "how to build an ai tool" --
-// the latter is close to a literal description of what MyToolHub does).
+// finished sentence -- though a few short symptom sentences DO work
+// ("why is my conversion rate" -> "...so low"). (2) some plausible-
+// looking roots collide with unrelated meanings and return noise, not
+// signal: "cpm"/"roas" as bare roots matched heart-rate "bpm" and "pot
+// roast"; "community engagement"/"student engagement" have real volume
+// but it's all K-12/HR/government content, not this audience; most
+// "ai for X sites/communities/chatbot" phrasings returned nothing.
 const SEED_QUERIES = [
-  'why are my ads',
+  // Ad/traffic pain -- "why are my ads" (not converting/not spending) works
+  // far better as platform-specific roots than as one generic phrase.
+  'why are my facebook ads',
+  'why are my instagram ads',
   'facebook ads cost',
+  'cost per lead',
+
+  // Sales/conversion pain
+  'sales page conversion',
+  'webinar conversion',
+  'why is my conversion rate',
+  'evergreen funnel',
+
+  // Audience identity -- broadened beyond "coaching" to the channel's full
+  // stated audience (consultants, authors, membership/community owners,
+  // info-product creators).
   'coaching business',
+  'consulting business',
+  'author business',
+  'membership site',
+  'info product business',
+
+  // Scaling / burnout pain -- the 1:1-doesn't-scale problem a tool hub
+  // directly solves.
   'scale your coaching business',
+  'stop trading time for money',
+
+  // The expertise-to-product transition itself
   'productize your expertise',
   'monetize your expertise',
+  'turn your knowledge into income',
+
+  // AI-aware solution search -- people already looking for the kind of
+  // thing MyToolHub is.
   'AI course creator',
   'ai for coaches',
   'ai for consultants',
+  'ai for authors',
   'how to build an ai tool',
+  'how to build a custom gpt',
+  'sell access to an ai',
 ];
 
 const CANDIDATES_PER_RUN = 5;
