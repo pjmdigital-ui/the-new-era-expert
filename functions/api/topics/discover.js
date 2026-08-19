@@ -10,18 +10,24 @@ const { scoreTopic, fetchYoutubeMatches } = require('../../../lib/topic-agent.js
 const { fetchSearchSuggestions, synthesizeCandidateTopics } = require('../../../lib/topic-discovery.js');
 const seedData = require('../../../data/seed-topics.json');
 
-// Plain, easily-edited seed phrases drawn from the language already used
-// across the 42 existing seed topics — not hidden logic. Revisit as the
-// content strategy evolves.
+// Symptom-level pain queries, not solution/category-level ones — someone
+// experiencing a problem searches the symptom ("why are my course sales
+// declining") long before they know the category that solves it exists.
+// A query like "knowledge based tool hub" has zero real search volume —
+// nobody searches for a category name they've never heard of. Kept two
+// solution-aware queries ("AI course creator", "turn expertise into AI
+// tool") since those describe things a more AI-aware segment of the
+// audience plausibly does search directly; dropped the rest of the
+// solution/jargon-level phrasing that used to fill out this list.
 const SEED_QUERIES = [
-  'knowledge based tool hub',
+  'why are my course sales declining',
+  'course completion rate low',
+  'why is my ad cost going up',
+  'low course engagement',
+  'students not finishing my course',
+  'why aren\'t people buying my course anymore',
   'AI course creator',
-  'coaching business AI',
   'turn expertise into AI tool',
-  'course creator AI disruption',
-  'build a knowledge base for clients',
-  'AI powered coaching business',
-  'productize expertise with AI',
 ];
 
 const CANDIDATES_PER_RUN = 5;
