@@ -140,9 +140,15 @@ async function handleThumbnailRequest(context) {
 }
 
 function bytesToBase64(bytes) {
+  // Chunked String.fromCharCode.apply rather than a per-character
+  // concatenation loop -- meaningfully faster for a multi-hundred-KB
+  // image, which matters since this route may be close to Cloudflare's
+  // per-request CPU time limit. 0x8000 stays comfortably under engines'
+  // max-arguments ceiling for Function.prototype.apply.
+  const CHUNK_SIZE = 0x8000;
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK_SIZE));
   }
   return btoa(binary);
 }
