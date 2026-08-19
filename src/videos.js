@@ -462,7 +462,18 @@ function renderMetadataSection(video) {
     }
     html += `</div>`;
 
-    html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:14px 0 4px;">Presenter photo (optional)</div>`;
+    html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:14px 0 4px;">Upload your own thumbnail (e.g. designed in ChatGPT)</div>`;
+    html += `
+      <div id="thumbnail-dropzone" class="dropzone">
+        <div class="field-row">
+          <input type="file" id="thumbnail-file-input" accept="image/png,image/jpeg,image/webp">
+          <button id="thumbnail-upload-btn">Upload thumbnail</button>
+        </div>
+        <div class="hint">or drag and drop an image file here</div>
+      </div>
+    `;
+
+    html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:14px 0 4px;">Or generate one here — presenter photo (optional)</div>`;
     html += renderFaceGrid();
     if (faceOptions === null) {
       ensureFaceOptions(() => renderMetadataSection(video));
@@ -511,6 +522,8 @@ function renderMetadataSection(video) {
       });
     });
 
+    wireThumbnailDropzone(video.id);
+
     document.querySelectorAll('.face-candidate').forEach(el => {
       el.addEventListener('click', () => {
         metadataSelection.faceR2Key = el.dataset.r2key || null;
@@ -531,6 +544,58 @@ function renderMetadataSection(video) {
     });
 
     document.getElementById('lock-in-metadata-btn').addEventListener('click', () => onLockInMetadata(video.id));
+  }
+}
+
+function wireThumbnailDropzone(videoId) {
+  const zone = document.getElementById('thumbnail-dropzone');
+  const fileInput = document.getElementById('thumbnail-file-input');
+  const uploadBtn = document.getElementById('thumbnail-upload-btn');
+  if (!zone) return;
+
+  uploadBtn.addEventListener('click', () => {
+    const file = fileInput.files[0];
+    if (!file) {
+      showError('Choose an image first.');
+      return;
+    }
+    uploadThumbnailFile(videoId, file);
+  });
+
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) uploadThumbnailFile(videoId, file);
+  });
+}
+
+async function uploadThumbnailFile(videoId, file) {
+  clearError();
+  const uploadBtn = document.getElementById('thumbnail-upload-btn');
+  if (uploadBtn) {
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading…';
+  }
+  try {
+    const res = await fetch(
+      `/api/metadata/thumbnail-upload?videoId=${encodeURIComponent(videoId)}&filename=${encodeURIComponent(file.name)}`,
+      { method: 'POST', body: file }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Upload failed: ${res.status}`);
+    await loadVideoDetail(videoId);
+  } catch (err) {
+    showError(err.message);
+    if (uploadBtn) {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Upload thumbnail';
+    }
   }
 }
 
@@ -815,7 +880,11 @@ async function onPublishClip(videoId, clipId, platform) {
 // ─── Drag-and-drop upload ─────────────────────────────────────────────
 // Dragging over the whole document (not just the dropzone) so a file
 // dropped slightly outside the box doesn't silently navigate the tab away
-// — the browser's default for an undropped file is to open it.
+// — the browser's default for an undropped file is to open it. Scoped to
+// the list view (via the els.listView.style.display check) so it doesn't
+// interfere with the separate, self-contained thumbnail dropzone on the
+// detail view (wireThumbnailDropzone, above), which handles its own drag
+// events directly on that one element instead.
 
 let dragDepth = 0;
 
