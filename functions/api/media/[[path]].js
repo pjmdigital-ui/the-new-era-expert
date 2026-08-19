@@ -1,15 +1,15 @@
 // GET /api/media/<key> -> streams an object straight out of the MEDIA R2
-// bucket (thumbnails, repurposed clips, source videos) for the dashboard's
-// <img>/<video> tags. R2 objects are private by default and this repo has no
-// public bucket access configured, so the dashboard needs some way to
-// display them — this is that way. Only serves the three prefixes the
-// dashboard actually needs; anything else 403s so this can't become an open
-// proxy over the whole bucket.
+// bucket (thumbnails, repurposed clips, source videos, presenter photos)
+// for the dashboard's <img>/<video> tags. R2 objects are private by
+// default and this repo has no public bucket access configured, so the
+// dashboard needs some way to display them — this is that way. Only serves
+// the prefixes the dashboard actually needs; anything else 403s so this
+// can't become an open proxy over the whole bucket.
 //
 // Streams object.body directly into the Response, never buffers — same
 // principle already used for the YouTube upload PUT in lib/youtube-publish.js.
 
-const ALLOWED_PREFIXES = ['thumbnails/', 'clips/', 'videos/'];
+const ALLOWED_PREFIXES = ['thumbnails/', 'clips/', 'videos/', 'faces/'];
 
 const EXTENSION_CONTENT_TYPES = {
   png: 'image/png',

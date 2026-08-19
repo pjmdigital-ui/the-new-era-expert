@@ -44,9 +44,15 @@ const els = {
 
 // Metadata selection state — only meaningful before metadata is locked in.
 // Reset every time a video is (re)loaded.
-let metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null };
+let metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null, faceR2Key: null };
 let currentUpload = { videoId: null, aborted: false };
 let currentDetailVideoId = null;
+
+// Presenter-photo gallery — fetched once and cached; null means "not loaded
+// yet". A separate loading flag stops concurrent renders from firing the
+// same fetch twice.
+let faceOptions = null;
+let faceOptionsLoading = false;
 
 function showError(message) {
   els.errorBanner.textContent = message;
@@ -275,7 +281,7 @@ async function loadVideoDetail(id) {
   try {
     const video = await apiFetch(`/api/videos/${encodeURIComponent(id)}`);
     if (id !== currentDetailVideoId) {
-      metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null };
+      metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null, faceR2Key: null };
       currentDetailVideoId = id;
     }
     renderDetail(video);
@@ -315,6 +321,45 @@ function renderUploadSection(video) {
   }
 }
 
+function ensureFaceOptions(onLoaded) {
+  if (faceOptions !== null || faceOptionsLoading) return;
+  faceOptionsLoading = true;
+  apiFetch('/api/media/faces')
+    .then(data => { faceOptions = data.faces || []; })
+    .catch(() => { faceOptions = []; })
+    .finally(() => {
+      faceOptionsLoading = false;
+      if (onLoaded) onLoaded();
+    });
+}
+
+function renderFaceGrid() {
+  if (faceOptions === null) {
+    return `<div class="hint">Loading presenter photos…</div>`;
+  }
+  if (faceOptions.length === 0) {
+    return `<div class="hint">No presenter photos yet — upload some to the MEDIA bucket's faces/ folder in the Cloudflare R2 browser to enable this.</div>`;
+  }
+
+  const noneSelected = !metadataSelection.faceR2Key;
+  let html = `<div class="thumbnail-grid">`;
+  html += `
+    <div class="thumbnail-candidate face-candidate${noneSelected ? ' selected' : ''}" data-r2key="">
+      <div class="no-face-tile">No photo</div>
+    </div>
+  `;
+  for (const face of faceOptions) {
+    const selected = metadataSelection.faceR2Key === face.key;
+    html += `
+      <div class="thumbnail-candidate face-candidate${selected ? ' selected' : ''}" data-r2key="${escapeHtml(face.key)}">
+        <img src="${escapeHtml(face.url)}" alt="Presenter photo">
+      </div>
+    `;
+  }
+  html += `</div>`;
+  return html;
+}
+
 function renderMetadataSection(video) {
   if (video.status === 'uploading' || video.status === 'upload_failed') {
     els.metadataSectionBody.innerHTML = `<div class="hint">Available once the upload finishes.</div>`;
@@ -351,6 +396,12 @@ function renderMetadataSection(video) {
       html += `<button class="thumbnail-text-chip" data-text="${escapeHtml(text)}" type="button">${escapeHtml(text)}</button>`;
     }
     html += `</div>`;
+
+    html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:14px 0 4px;">Presenter photo (optional)</div>`;
+    html += renderFaceGrid();
+    if (faceOptions === null) {
+      ensureFaceOptions(() => renderMetadataSection(video));
+    }
 
     html += `
       <div class="field-row">
@@ -391,13 +442,21 @@ function renderMetadataSection(video) {
       });
     });
 
+    document.querySelectorAll('.face-candidate').forEach(el => {
+      el.addEventListener('click', () => {
+        metadataSelection.faceR2Key = el.dataset.r2key || null;
+        document.querySelectorAll('.face-candidate').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+    });
+
     document.getElementById('generate-thumbnail-btn').addEventListener('click', () => onGenerateThumbnail(video.id));
 
-    document.querySelectorAll('.thumbnail-candidate').forEach(el => {
+    document.querySelectorAll('.thumbnail-grid .thumbnail-candidate:not(.face-candidate)').forEach(el => {
       el.addEventListener('click', () => {
         metadataSelection.thumbnailR2Key = el.dataset.r2key;
         metadataSelection.thumbnailText = el.dataset.text;
-        document.querySelectorAll('.thumbnail-candidate').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.thumbnail-grid .thumbnail-candidate:not(.face-candidate)').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
       });
     });
@@ -468,7 +527,12 @@ async function onGenerateThumbnail(videoId) {
     await apiFetch('/api/metadata/thumbnail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, thumbnailText, backgroundPrompt: backgroundPrompt || undefined }),
+      body: JSON.stringify({
+        videoId,
+        thumbnailText,
+        backgroundPrompt: backgroundPrompt || undefined,
+        faceR2Key: metadataSelection.faceR2Key || undefined,
+      }),
     });
     await loadVideoDetail(videoId);
   } catch (err) {

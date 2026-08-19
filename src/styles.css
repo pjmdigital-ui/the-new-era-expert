@@ -211,6 +211,7 @@ input[type="text"] { flex: 1; min-width: 200px; }
 .option-card:hover { border-color: var(--gold); }
 .option-card.selected { border-color: var(--gold); background: rgba(212,175,55,0.06); }
 .option-card input { margin-top: 2px; }
+.option-card span { white-space: pre-line; }
 
 /* ─── Thumbnail candidate grid ────────────────────────────────────────── */
 .thumbnail-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
@@ -225,6 +226,20 @@ input[type="text"] { flex: 1; min-width: 200px; }
 .thumbnail-candidate.selected { border-color: var(--gold); }
 .thumbnail-candidate img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
 .thumbnail-candidate .label { font-size: 11px; color: var(--muted); padding: 6px 8px; }
+
+/* ─── Presenter-photo picker (subset of .thumbnail-candidate — narrower,
+   portrait aspect ratio so faces aren't cropped oddly) ─────────────── */
+.face-candidate { width: 90px; }
+.face-candidate img, .face-candidate .no-face-tile { aspect-ratio: 3/4; object-fit: cover; }
+.no-face-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+  padding: 4px;
+}
 
 /* ─── Locked-in metadata summary ──────────────────────────────────────── */
 .locked-summary { font-size: 13px; line-height: 1.6; }
