@@ -52,6 +52,12 @@
   .slide.size-md .body     { font-size: 1.55vw; line-height: 1.50; }
   .slide.size-sm .headline { font-size: 2.6vw; line-height: 1.12; margin-bottom: 1.8vh; }
   .slide.size-sm .body     { font-size: 1.30vw; line-height: 1.45; }
+  [contenteditable="true"] {
+    outline: 1px dashed rgba(168,85,247,0.5);
+    outline-offset: 8px;
+    cursor: text;
+  }
+  [contenteditable="true"]:focus { outline: 1px dashed #a855f7; }
   .footer-bar {
     position: absolute; left: 0; right: 0; bottom: 0;
     padding: 1.6vh 6vw;
@@ -81,6 +87,8 @@
     position: fixed; top: 20px; left: 20px;
     z-index: 50;
     display: flex; gap: 8px;
+    flex-wrap: wrap;
+    max-width: 70vw;
   }
   .controls a, .controls button {
     background: rgba(0,0,0,0.65);
@@ -95,6 +103,7 @@
   }
   .controls a:hover, .controls button:hover { border-color: #a855f7; color: #a855f7; }
   .controls button:disabled { opacity: 0.5; cursor: default; }
+  .controls button.primary { border-color: #a855f7; color: #c084fc; }
 
   .status-screen {
     position: fixed; inset: 0;
@@ -110,8 +119,14 @@
 </head>
 <body>
   <div class="controls">
-    <a href="index.html">← Exit</a>
+    <a href="index.html" id="exit-link">← Exit</a>
     <button id="regenerate-btn">Regenerate</button>
+    <button id="edit-btn">Edit</button>
+    <button id="prev-slide-edit-btn" style="display:none;">‹ Prev slide</button>
+    <button id="next-slide-edit-btn" style="display:none;">Next slide ›</button>
+    <button id="delete-slide-btn" style="display:none;">Delete this slide</button>
+    <button id="save-edit-btn" style="display:none;" class="primary">Save changes</button>
+    <button id="cancel-edit-btn" style="display:none;">Cancel</button>
   </div>
   <div class="nav"><span id="counter"></span><span class="hint">← → keys</span></div>
   <div id="status-screen" class="status-screen">
