@@ -44,6 +44,7 @@ binding = "AI"
 binding = "MEDIA_TRANSFORM"
 
 # ─── Environment variables — non-secret config ────────────────────────────────
+[vars]
 PLATFORM_NAME = "The New Era Expert"
 TARGET_VIDEO_LENGTH_MIN_MINUTES = "8"
 TARGET_VIDEO_LENGTH_MAX_MINUTES = "15"
