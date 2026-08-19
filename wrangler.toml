@@ -44,7 +44,6 @@ binding = "AI"
 binding = "MEDIA_TRANSFORM"
 
 # ─── Environment variables — non-secret config ────────────────────────────────
-[vars]
 PLATFORM_NAME = "The New Era Expert"
 TARGET_VIDEO_LENGTH_MIN_MINUTES = "8"
 TARGET_VIDEO_LENGTH_MAX_MINUTES = "15"
@@ -87,3 +86,9 @@ MEDIA_PUBLIC_BASE_URL = "https://pub-55f06eb7c45e4fd2b02f298cbf53dd09.r2.dev"
 # silently stalled auto-deploy for several pushes. If dashboard.neweraexpert.com
 # ever looks stale again, check the Deployments tab for a disconnected-repo
 # banner before assuming the code itself is broken.
+#
+# 2026-08-19: When a secret is added/changed, Cloudflare only applies it to
+# deployments created AFTER the save -- an existing deployment's "..." menu
+# may not offer a retry/redeploy option to pick it up. A trivial commit
+# (like this one) is the reliable way to force a fresh deployment when that
+# happens.
