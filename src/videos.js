@@ -4,10 +4,11 @@
 // adding a client-side router.
 //
 // Detail-view pattern: after every mutating action (generate/thumbnail/
-// select/publish/repurpose/approve), re-fetch the full record via
-// GET /api/videos/<id> and re-render everything from that, rather than
-// hand-merging each route's partial response shape — the routes return
-// different subsets of fields, so one source of truth is simpler and safer.
+// select/publish/repurpose/approve/link-topic), re-fetch the full record
+// via GET /api/videos/<id> and re-render everything from that, rather
+// than hand-merging each route's partial response shape — the routes
+// return different subsets of fields, so one source of truth is simpler
+// and safer.
 
 const STATUS_LABELS = {
   uploading: 'Uploading',
@@ -53,6 +54,11 @@ let currentDetailVideoId = null;
 // same fetch twice.
 let faceOptions = null;
 let faceOptionsLoading = false;
+
+// Topic list for the video<->topic link picker — same fetch-once-and-cache
+// pattern as faceOptions.
+let topicOptions = null;
+let topicOptionsLoading = false;
 
 function showError(message) {
   els.errorBanner.textContent = message;
@@ -360,6 +366,60 @@ function renderFaceGrid() {
   return html;
 }
 
+function ensureTopicOptions(onLoaded) {
+  if (topicOptions !== null || topicOptionsLoading) return;
+  topicOptionsLoading = true;
+  apiFetch('/api/topics')
+    .then(data => { topicOptions = data.topics || []; })
+    .catch(() => { topicOptions = []; })
+    .finally(() => {
+      topicOptionsLoading = false;
+      if (onLoaded) onLoaded();
+    });
+}
+
+function renderTopicLinkRow(video) {
+  if (topicOptions === null) {
+    return `<div class="field-row"><div class="hint">Loading topics…</div></div>`;
+  }
+
+  const options = topicOptions
+    .map(t => `<option value="${escapeHtml(t.id)}" ${video.topicId === t.id ? 'selected' : ''}>${escapeHtml(t.title)}</option>`)
+    .join('');
+
+  return `
+    <div class="field-row">
+      <select id="topic-link-select">
+        <option value="">— No topic linked —</option>
+        ${options}
+      </select>
+      <button id="link-topic-btn">Link topic</button>
+    </div>
+    <div class="hint">${video.topicTitle
+      ? `Linked to: <strong>${escapeHtml(video.topicTitle)}</strong> — metadata generation uses this as the real subject.`
+      : 'Link this video to a topic first so generated titles/descriptions are about the actual subject, not just the filename.'}</div>
+  `;
+}
+
+async function onLinkTopic(videoId) {
+  clearError();
+  const select = document.getElementById('topic-link-select');
+  const topicId = select.value;
+  const btn = document.getElementById('link-topic-btn');
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/videos/link-topic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoId, topicId: topicId || null }),
+    });
+    await loadVideoDetail(videoId);
+  } catch (err) {
+    showError(err.message);
+    btn.disabled = false;
+  }
+}
+
 function renderMetadataSection(video) {
   if (video.status === 'uploading' || video.status === 'upload_failed') {
     els.metadataSectionBody.innerHTML = `<div class="hint">Available once the upload finishes.</div>`;
@@ -382,8 +442,13 @@ function renderMetadataSection(video) {
     return;
   }
 
+  let html = renderTopicLinkRow(video);
+  if (topicOptions === null) {
+    ensureTopicOptions(() => renderMetadataSection(video));
+  }
+
   const hasOptions = meta && meta.titleOptions && meta.titleOptions.length > 0;
-  let html = `<div class="field-row"><button id="generate-metadata-btn" class="primary">Generate title/description/thumbnail-text options</button></div>`;
+  html += `<div class="field-row"><button id="generate-metadata-btn" class="primary">Generate title/description/thumbnail-text options</button></div>`;
 
   if (hasOptions) {
     html += renderOptionList('title-option', meta.titleOptions, metadataSelection.title);
@@ -430,7 +495,8 @@ function renderMetadataSection(video) {
 
   els.metadataSectionBody.innerHTML = html;
 
-  document.getElementById('generate-metadata-btn').addEventListener('click', () => onGenerateMetadata(video.id));
+  document.getElementById('link-topic-btn').addEventListener('click', () => onLinkTopic(video.id));
+  document.getElementById('generate-metadata-btn').addEventListener('click', () => onGenerateMetadata(video.id, video.topicTitle));
 
   if (hasOptions) {
     wireOptionList('title-option', value => { metadataSelection.title = value; });
@@ -490,7 +556,7 @@ function wireOptionList(name, onSelect) {
   });
 }
 
-async function onGenerateMetadata(videoId) {
+async function onGenerateMetadata(videoId, topicTitle) {
   clearError();
   const btn = document.getElementById('generate-metadata-btn');
   btn.disabled = true;
@@ -499,7 +565,7 @@ async function onGenerateMetadata(videoId) {
     const result = await apiFetch('/api/metadata/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId }),
+      body: JSON.stringify({ videoId, topicTitle: topicTitle || undefined }),
     });
     if (result.validation && result.validation.warnings && result.validation.warnings.length > 0) {
       showError(`Generated with warnings: ${result.validation.warnings.join('; ')}`);
