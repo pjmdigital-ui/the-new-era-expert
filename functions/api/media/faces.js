@@ -9,7 +9,14 @@ export async function onRequestGet(context) {
   const listed = await env.MEDIA.list({ prefix: 'faces/' });
   const faces = (listed.objects || [])
     .filter(o => !o.key.endsWith('/'))
-    .map(o => ({ key: o.key, url: `/api/media/${o.key}` }))
+    .map(o => ({
+      key: o.key,
+      // Percent-encode each path segment -- filenames like "ChatGPT Image
+      // Aug 19, 2026, 02_48_00 PM.png" (spaces, commas) break as a raw
+      // <img src> otherwise. Split/join around "/" so the faces/ separator
+      // itself doesn't get encoded into %2F.
+      url: `/api/media/${o.key.split('/').map(encodeURIComponent).join('/')}`,
+    }))
     .sort((a, b) => a.key.localeCompare(b.key));
 
   return Response.json({ faces });
