@@ -22,6 +22,24 @@ const {
 const FACE_PREFIX = 'faces/';
 
 export async function onRequestPost(context) {
+  // Wrapped so any unhandled exception (WASM init failure, image-gen call
+  // throwing, etc.) comes back as a readable JSON error instead of
+  // Cloudflare's generic edge crash page ("error code: 1101"), which gives
+  // no information about what actually broke.
+  try {
+    return await handleThumbnailRequest(context);
+  } catch (err) {
+    return Response.json(
+      {
+        error: `Unhandled error generating thumbnail: ${err && err.message}`,
+        stack: err && err.stack ? String(err.stack).split('\n').slice(0, 5).join('\n') : undefined,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleThumbnailRequest(context) {
   const { request, env } = context;
   const body = await request.json().catch(() => ({}));
   const { videoId, thumbnailText, backgroundPrompt, faceR2Key } = body;
