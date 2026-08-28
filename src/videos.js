@@ -508,6 +508,11 @@ async function uploadThumbnailFile(videoId, file) {
     );
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `Upload failed: ${res.status}`);
+    // Auto-select the thumbnail that was just uploaded — otherwise it only
+    // lands in the candidate grid and "Lock in selections" still blocks
+    // with "pick a thumbnail" until the user clicks the new tile themselves.
+    metadataSelection.thumbnailR2Key = data.thumbnailR2Key;
+    metadataSelection.thumbnailText = 'Uploaded thumbnail';
     await loadVideoDetail(videoId);
   } catch (err) {
     showError(err.message);
