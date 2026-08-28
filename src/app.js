@@ -8,6 +8,18 @@ const ENTRY_POINT_LABELS = {
   'proof-premise-7-8': 'Proof (Premise 7/8)',
 };
 
+const ANGLE_LABELS = {
+  'pain-avoidance': 'Pain',
+  'pleasure-seeking': 'Pleasure',
+};
+
+function angleBadge(angle) {
+  if (!angle) return '';
+  const label = ANGLE_LABELS[angle] || angle;
+  const cls = angle === 'pleasure-seeking' ? 'entry-tag angle-pleasure' : 'entry-tag';
+  return `<span class="${cls}">${escapeHtml(label)}</span>`;
+}
+
 const els = {
   errorBanner: document.getElementById('error-banner'),
   nextUpCard: document.getElementById('next-up-card'),
@@ -60,7 +72,7 @@ function renderTopics(data) {
     const sourceTag = topic.source === 'discovered' ? '<span class="entry-tag source-tag">Discovered</span>' : '';
     row.innerHTML = `
       <td>${escapeHtml(topic.title)}</td>
-      <td><span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[topic.entryPoint] || topic.entryPoint)}</span> ${sourceTag}</td>
+      <td><span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[topic.entryPoint] || topic.entryPoint)}</span> ${angleBadge(topic.angle)} ${sourceTag}</td>
       <td>${topic.timesCovered}</td>
       <td>${topic.demandScore}</td>
       <td><button class="cover-btn" data-id="${escapeHtml(topic.id)}">Mark covered</button></td>
@@ -86,6 +98,7 @@ function renderCandidates(candidates) {
       <div class="title">${escapeHtml(candidate.title)}</div>
       <div class="meta-row">
         <span class="entry-tag">${escapeHtml(ENTRY_POINT_LABELS[candidate.entryPoint] || candidate.entryPoint)}</span>
+        ${angleBadge(candidate.angle)}
         <span>Demand score: ${candidate.demandScore}</span>
       </div>
       <div class="rationale">${escapeHtml(candidate.rationale)}</div>

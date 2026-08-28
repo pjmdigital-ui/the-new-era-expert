@@ -1,53 +1,493 @@
 {
-  "_comment": "Seed topic list — sourced from strategy-notes/2026-08-filming-source-material.md in the kbt-ai repo. These are candidates based on existing market understanding, NOT validated search/consumption data. demandScore starts at 0 for every topic; the demand-scoring agent (lib/topic-agent.js) is what replaces these zeros with real scores from competitor-channel research. Until that's run, topic-ranker.js's coverage-first sort still works correctly (all topics tied at demandScore 0 just fall through to the staleness tie-break, which is fine for an unscored list).",
+  "_comment": "Seed topic list — sourced from strategy-notes/2026-08-filming-source-material.md in the kbt-ai repo. These are candidates based on existing market understanding, NOT validated search/consumption data. demandScore starts at 0 for every topic; the demand-scoring agent (lib/topic-agent.js) is what replaces these zeros with real scores from competitor-channel research. Until that's run, topic-ranker.js's coverage-first sort still works correctly (all topics tied at demandScore 0 just fall through to the staleness tie-break, which is fine for an unscored list). Updated 2026-08-28: added an 'angle' field ('pain-avoidance' | 'pleasure-seeking') to every topic, and 12 new pleasure-seeking topics (opportunity-1..12) grounded in live YouTube autocomplete research into AI monetization/leverage/optimization search terms (see functions/api/topics/discover.js's SEED_QUERIES comment for the research log) — the original 42 skewed entirely pain-avoidance, which undersells the real audience segment searching AI content from an opportunity/leverage angle rather than a problem angle.",
   "topics": [
-    { "id": "problem-1", "title": "The 3-year forecast for course-based businesses that don't adapt", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "problem-2", "title": "What the refund data on Kajabi and Teachable actually shows in 2026", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "problem-3", "title": "Why ChatGPT is quietly killing your info-product renewal rate", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "problem-4", "title": "The 'good coach' trap — why your reputation might not save you", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "problem-5", "title": "What I'm hearing from coaches whose 2025 revenue is below 2023", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "problem-6", "title": "The 2028 question — what will your business actually look like in 3 years if you stay on the path you're on now?", "entryPoint": "problem-is-real", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "alternatives-1", "title": "Why hiring more coaches won't scale your practice (the ROI math)", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "alternatives-2", "title": "Why creating more courses is fighting the wrong war right now", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "alternatives-3", "title": "'I'll just raise my prices' — why the price ceiling is real", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "alternatives-4", "title": "The AI-expert trap — why you shouldn't try to become the AI person yourself", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "alternatives-5", "title": "Why building your own custom tech is a decade-long detour", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "alternatives-6", "title": "The community/membership plateau — why Skool alone won't save you", "entryPoint": "alternatives-fail", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "category-1", "title": "The three waves of expertise monetization — courses, one-off AI tools, and what's next", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "category-2", "title": "What is a knowledge-based tool hub, actually?", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "category-3", "title": "Why the coaching industry is being restructured into a new category — and what that means for individual coaches' positioning", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "category-4", "title": "How expertise stops being information and starts being infrastructure", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "category-5", "title": "What experts in adjacent categories (Delphi's Brendon Burchard) are already doing", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "category-6", "title": "The specific difference between selling a course and selling access to a tool hub", "entryPoint": "category-exists", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "credible-1", "title": "Why generic AI tools (Custom GPTs, Chatbase) won't work for expert positioning", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "credible-2", "title": "The 7-Layer Context Engine explained without jargon", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "credible-3", "title": "How to make an AI actually sound like YOU (not generic ChatGPT)", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "credible-4", "title": "The difference between 'trained on your knowledge' and 'delivers your expertise'", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "credible-5", "title": "Why a hub of tools beats a single AI clone (Delphi vs. tool hub)", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "credible-6", "title": "What 'personalized to each member' actually requires under the hood", "entryPoint": "credible-and-different", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "capable-1", "title": "You don't need to be a technical person to do this (proof)", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "capable-2", "title": "How to extract your methodology if you've never written it down", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "capable-3", "title": "Case study: [non-technical coach] launched their hub in a weekend", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "capable-4", "title": "The 'I'm not qualified to build an AI product' trap", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "capable-5", "title": "How to preserve your 'human touch' while automating delivery", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "capable-6", "title": "What actually happens in the first 60 minutes of setting up a hub", "entryPoint": "i-am-capable", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "urgent-1", "title": "The 24-month window — what happens if you wait", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "urgent-2", "title": "Why the first mover in your niche wins disproportionately", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "urgent-3", "title": "What your competitors are doing while you're deciding", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "urgent-4", "title": "The compounding cost of not moving — every quarter you wait", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "urgent-5", "title": "Why 'I'll do this when I have time' is the same as 'I never will'", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "urgent-6", "title": "The exact moment I realized waiting was more risky than moving", "entryPoint": "act-now", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-
-    { "id": "proof-1", "title": "Timed screen-recording: hub live in under 60 minutes, no code", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null, "priority": "highest — the single most provable claim, film first" },
-    { "id": "proof-2", "title": "Onboarding/template walkthrough (vertical opinionation)", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "proof-3", "title": "Brand Fabric product demo", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "proof-4", "title": "Playbook feature demo", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "proof-5", "title": "Founder-narrative / responsiveness piece", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null },
-    { "id": "proof-6", "title": "MyToolHub vs. Pickaxe for coaches — head-to-head", "entryPoint": "proof-premise-7-8", "timesCovered": 0, "demandScore": 0, "lastCoveredAt": null, "note": "only once proof-1 through proof-5 exist to back it — do not lead with unproven claims" }
+    {
+      "id": "problem-1",
+      "title": "The 3-year forecast for course-based businesses that don't adapt",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "problem-2",
+      "title": "What the refund data on Kajabi and Teachable actually shows in 2026",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "problem-3",
+      "title": "Why ChatGPT is quietly killing your info-product renewal rate",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "problem-4",
+      "title": "The 'good coach' trap — why your reputation might not save you",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "problem-5",
+      "title": "What I'm hearing from coaches whose 2025 revenue is below 2023",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "problem-6",
+      "title": "The 2028 question — what will your business actually look like in 3 years if you stay on the path you're on now?",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-1",
+      "title": "Why hiring more coaches won't scale your practice (the ROI math)",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-2",
+      "title": "Why creating more courses is fighting the wrong war right now",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-3",
+      "title": "'I'll just raise my prices' — why the price ceiling is real",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-4",
+      "title": "The AI-expert trap — why you shouldn't try to become the AI person yourself",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-5",
+      "title": "Why building your own custom tech is a decade-long detour",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "alternatives-6",
+      "title": "The community/membership plateau — why Skool alone won't save you",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-1",
+      "title": "The three waves of expertise monetization — courses, one-off AI tools, and what's next",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-2",
+      "title": "What is a knowledge-based tool hub, actually?",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-3",
+      "title": "Why the coaching industry is being restructured into a new category — and what that means for individual coaches' positioning",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-4",
+      "title": "How expertise stops being information and starts being infrastructure",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-5",
+      "title": "What experts in adjacent categories (Delphi's Brendon Burchard) are already doing",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "category-6",
+      "title": "The specific difference between selling a course and selling access to a tool hub",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-1",
+      "title": "Why generic AI tools (Custom GPTs, Chatbase) won't work for expert positioning",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-2",
+      "title": "The 7-Layer Context Engine explained without jargon",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-3",
+      "title": "How to make an AI actually sound like YOU (not generic ChatGPT)",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-4",
+      "title": "The difference between 'trained on your knowledge' and 'delivers your expertise'",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-5",
+      "title": "Why a hub of tools beats a single AI clone (Delphi vs. tool hub)",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "credible-6",
+      "title": "What 'personalized to each member' actually requires under the hood",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-1",
+      "title": "You don't need to be a technical person to do this (proof)",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-2",
+      "title": "How to extract your methodology if you've never written it down",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-3",
+      "title": "Case study: [non-technical coach] launched their hub in a weekend",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-4",
+      "title": "The 'I'm not qualified to build an AI product' trap",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-5",
+      "title": "How to preserve your 'human touch' while automating delivery",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "capable-6",
+      "title": "What actually happens in the first 60 minutes of setting up a hub",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-1",
+      "title": "The 24-month window — what happens if you wait",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-2",
+      "title": "Why the first mover in your niche wins disproportionately",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-3",
+      "title": "What your competitors are doing while you're deciding",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-4",
+      "title": "The compounding cost of not moving — every quarter you wait",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-5",
+      "title": "Why 'I'll do this when I have time' is the same as 'I never will'",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "urgent-6",
+      "title": "The exact moment I realized waiting was more risky than moving",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-1",
+      "title": "Timed screen-recording: hub live in under 60 minutes, no code",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "priority": "highest — the single most provable claim, film first",
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-2",
+      "title": "Onboarding/template walkthrough (vertical opinionation)",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-3",
+      "title": "Brand Fabric product demo",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-4",
+      "title": "Playbook feature demo",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-5",
+      "title": "Founder-narrative / responsiveness piece",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "proof-6",
+      "title": "MyToolHub vs. Pickaxe for coaches — head-to-head",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "note": "only once proof-1 through proof-5 exist to back it — do not lead with unproven claims",
+      "angle": "pain-avoidance"
+    },
+    {
+      "id": "opportunity-1",
+      "title": "The AI leverage window every expert has right now — and most haven't touched it",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-2",
+      "title": "What 'leveraging AI in your business' actually looks like for an expert, not a tech company",
+      "entryPoint": "problem-is-real",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-3",
+      "title": "Why starting an AI agency isn't the leverage play it looks like",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-4",
+      "title": "Selling AI implementation services caps your upside — owning a product doesn't",
+      "entryPoint": "alternatives-fail",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-5",
+      "title": "AI SaaS product ideas, if the product is your own expertise",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-6",
+      "title": "The new revenue category sitting inside every expert's existing knowledge",
+      "entryPoint": "category-exists",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-7",
+      "title": "What makes an AI product actually sellable, versus a demo nobody buys",
+      "entryPoint": "credible-and-different",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-8",
+      "title": "Building an AI consulting offer around what you already know how to do",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-9",
+      "title": "How to turn a custom GPT into a real small-business offer",
+      "entryPoint": "i-am-capable",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-10",
+      "title": "The window to be first with your own branded AI product is closing",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-11",
+      "title": "What early movers are already building while everyone else is debating",
+      "entryPoint": "act-now",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    },
+    {
+      "id": "opportunity-12",
+      "title": "Case study: from one framework to a sellable AI product in a week",
+      "entryPoint": "proof-premise-7-8",
+      "timesCovered": 0,
+      "demandScore": 0,
+      "lastCoveredAt": null,
+      "angle": "pleasure-seeking"
+    }
   ]
 }

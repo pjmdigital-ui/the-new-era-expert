@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The New Era Expert — Content Dashboard</title>
-<link rel="stylesheet" href="styles.css?v=20260819b">
+<link rel="stylesheet" href="styles.css?v=20260828a">
 </head>
 <body>
 <header>
@@ -26,33 +26,25 @@
     <div class="meta" id="next-up-meta"></div>
   </div>
 
-  <div class="toolbar">
-    <button id="refresh-btn">Refresh demand scores</button>
-    <button id="discover-btn" class="primary">Discover new topics</button>
-    <button id="reload-btn">Reload list</button>
+  <div id="candidates-section" style="display:none;">
+    <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.05em;color:var(--gold-bright);">New topic candidates</h2>
+    <div id="candidates-body"></div>
   </div>
 
-  <div id="candidates-section" class="section" style="display:none;">
-    <h2>Discovered — needs review</h2>
-    <div id="candidates-body"></div>
+  <div class="toolbar">
+    <button id="refresh-btn" class="primary">Refresh demand scores</button>
+    <button id="discover-btn">Discover new topics</button>
+    <button id="reload-btn">Reload</button>
   </div>
 
   <table id="topics-table" style="display:none;">
     <thead>
-      <tr>
-        <th>Topic</th>
-        <th>Entry point</th>
-        <th>Times covered</th>
-        <th>Demand score</th>
-        <th></th>
-      </tr>
+      <tr><th>Title</th><th>Entry point</th><th>Times covered</th><th>Demand score</th><th></th></tr>
     </thead>
     <tbody id="topics-body"></tbody>
   </table>
-
   <div id="empty-state" class="empty-state">Loading topics…</div>
 </main>
-
-<script src="app.js?v=20260819a"></script>
+<script src="app.js?v=20260828a"></script>
 </body>
 </html>

@@ -11,10 +11,10 @@ const { fetchSearchSuggestions, synthesizeCandidateTopics } = require('../../../
 const seedData = require('../../../data/seed-topics.json');
 
 // Every query below was validated live against the actual YouTube
-// autocomplete endpoint (gatherSignal's fetchSearchSuggestions) across two
-// research passes (82 candidates tested total) -- not guessed. Two things
-// learned doing that: (1) full symptom SENTENCES ("why isn't my course
-// selling", "course sales are declining") mostly return nothing --
+// autocomplete endpoint (gatherSignal's fetchSearchSuggestions) across
+// three research passes (116 candidates tested total) -- not guessed. Two
+// things learned doing that: (1) full symptom SENTENCES ("why isn't my
+// course selling", "course sales are declining") mostly return nothing --
 // autocomplete completes a short root, it doesn't match an already-
 // finished sentence -- though a few short symptom sentences DO work
 // ("why is my conversion rate" -> "...so low"). (2) some plausible-
@@ -23,6 +23,10 @@ const seedData = require('../../../data/seed-topics.json');
 // roast"; "community engagement"/"student engagement" have real volume
 // but it's all K-12/HR/government content, not this audience; most
 // "ai for X sites/communities/chatbot" phrasings returned nothing.
+//
+// The list below intentionally mixes two angles (see lib/topic-discovery
+// .js's ANGLES) -- pain-avoidance and pleasure-seeking -- each labeled by
+// section. It skewed 100% pain-avoidance until 2026-08-28.
 const SEED_QUERIES = [
   // Ad/traffic pain -- "why are my ads" (not converting/not spending) works
   // far better as platform-specific roots than as one generic phrase.
@@ -65,6 +69,35 @@ const SEED_QUERIES = [
   'how to build an ai tool',
   'how to build a custom gpt',
   'sell access to an ai',
+
+  // Pleasure-seeking / opportunity roots -- validated 2026-08-28 against
+  // the same live autocomplete endpoint (34 candidates tested). Added
+  // because the list above skewed entirely pain-avoidance; a real audience
+  // also searches AI from a leverage/monetization/optimization angle, not
+  // just a symptom angle. Dead ends found this pass, worth remembering:
+  // "ai side hustle"/"ai passive income"/"ai wealth"/"ai freedom"/"ai
+  // income"/"chatgpt side hustle"/"make passive income with ai" are all
+  // dominated by generic make-money-online/guru-funnel content (crypto
+  // arbitrage, Airbnb, teen side-hustle content, named guru products like
+  // "AI Freedom Launchpad") -- real volume, wrong audience, not used.
+  // "ai agency" is dominated by cold-call/sales-training content for
+  // running an AI-services agency -- a different business model than
+  // packaging your own expertise, not used. "optimize your business with
+  // ai" returned nothing; "turn your skills into ai" only matched the
+  // unrelated "turn yourself into ai" avatar trend; "ai productivity" and
+  // "ai lifestyle business" returned generic productivity-tool volume with
+  // no clear tie to monetizing expertise -- not used.
+  'how to leverage ai in your business',
+  'how to scale your business with ai',
+  'ai tools for entrepreneurs',
+  'build an ai business',
+  'sell ai tools',
+  'ai product ideas',
+  'how to make an ai product',
+  'grow your business with ai',
+  'custom gpt business',
+  'ai automation business',
+  'ai course business',
 ];
 
 const CANDIDATES_PER_RUN = 5;
@@ -100,6 +133,7 @@ export async function onRequestPost(context) {
         id: crypto.randomUUID(),
         title: candidate.title,
         entryPoint: candidate.entryPoint,
+        angle: candidate.angle,
         rationale: candidate.rationale,
         status: 'candidate',
         source: 'discovered',

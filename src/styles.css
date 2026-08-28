@@ -84,6 +84,7 @@ tr.clickable { cursor: pointer; }
 }
 .cover-btn { font-size: 12px; padding: 4px 10px; }
 .source-tag { border-color: var(--gold); color: var(--gold-bright); }
+.angle-pleasure { border-color: var(--gold); color: var(--gold-bright); }
 
 /* ─── Discovered-topic candidate cards ────────────────────────────── */
 .candidate-card {
