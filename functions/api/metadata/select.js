@@ -1,24 +1,25 @@
-// POST /api/metadata/select  { videoId, selectedTitle, selectedDescription,
-// selectedThumbnailText, selectedThumbnailR2Key } -> locks in the chosen
-// metadata and advances the video to "metadata_generated". This is the
-// final gate before publish-youtube.js, so validation here is hard — unlike
-// generate.js's never-fail retry loop.
+// POST /api/metadata/select  { videoId, selectedTitle, selectedDescription }
+// -> locks in the chosen title/description and advances the video to
+// "metadata_generated". This is the final gate before manual publish, so
+// validation here is hard — unlike generate.js's never-fail retry loop.
+//
+// Thumbnail selection is intentionally NOT part of this gate — thumbnails
+// are handled entirely manually in YouTube Studio now, not in-app.
+// selectedThumbnailText/selectedThumbnailR2Key are accepted as optional
+// pass-through fields (kept for any already-locked videos that still carry
+// them from before this change) but are never required.
 
 const { getVideo, updateVideoStatus } = require('../../../lib/video-store.js');
-const {
-  validateTitle,
-  validateThumbnailText,
-  validateTitleThumbnailPair,
-} = require('../../../lib/youtube-copy-rules.js');
+const { validateTitle } = require('../../../lib/youtube-copy-rules.js');
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const body = await request.json().catch(() => ({}));
   const { videoId, selectedTitle, selectedDescription, selectedThumbnailText, selectedThumbnailR2Key } = body;
 
-  if (!videoId || !selectedTitle || !selectedDescription || !selectedThumbnailText || !selectedThumbnailR2Key) {
+  if (!videoId || !selectedTitle || !selectedDescription) {
     return Response.json(
-      { error: 'videoId, selectedTitle, selectedDescription, selectedThumbnailText, and selectedThumbnailR2Key are all required' },
+      { error: 'videoId, selectedTitle, and selectedDescription are all required' },
       { status: 400 }
     );
   }
@@ -34,11 +35,7 @@ export async function onRequestPost(context) {
     );
   }
 
-  const issues = [
-    ...validateTitle(selectedTitle).issues,
-    ...validateThumbnailText(selectedThumbnailText).issues,
-    ...validateTitleThumbnailPair(selectedTitle, selectedThumbnailText).issues,
-  ];
+  const issues = validateTitle(selectedTitle).issues;
   if (issues.length > 0) {
     return Response.json({ error: 'Selected metadata failed validation', issues }, { status: 422 });
   }
@@ -48,8 +45,8 @@ export async function onRequestPost(context) {
       ...video.metadata,
       selectedTitle,
       selectedDescription,
-      selectedThumbnailText,
-      selectedThumbnailR2Key,
+      selectedThumbnailText: selectedThumbnailText || null,
+      selectedThumbnailR2Key: selectedThumbnailR2Key || null,
     },
   });
 

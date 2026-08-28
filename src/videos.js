@@ -3,8 +3,8 @@
 // existing topics dashboard's single-page-per-concern style rather than
 // adding a client-side router.
 //
-// Detail-view pattern: after every mutating action (generate/thumbnail/
-// select/publish/repurpose/approve/link-topic), re-fetch the full record
+// Detail-view pattern: after every mutating action (generate/select/
+// repurpose/approve/link-topic), re-fetch the full record
 // via GET /api/videos/<id> and re-render everything from that, rather
 // than hand-merging each route's partial response shape — the routes
 // return different subsets of fields, so one source of truth is simpler
@@ -44,8 +44,10 @@ const els = {
 };
 
 // Metadata selection state — only meaningful before metadata is locked in.
-// Reset every time a video is (re)loaded.
-let metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null };
+// Reset every time a video is (re)loaded. Thumbnails are handled entirely
+// manually in YouTube Studio, not in this app, so there's no thumbnail
+// field here.
+let metadataSelection = { title: null, description: null };
 let currentUpload = { videoId: null, aborted: false };
 let currentDetailVideoId = null;
 
@@ -282,7 +284,7 @@ async function loadVideoDetail(id) {
   try {
     const video = await apiFetch(`/api/videos/${encodeURIComponent(id)}`);
     if (id !== currentDetailVideoId) {
-      metadataSelection = { title: null, description: null, thumbnailR2Key: null, thumbnailText: null };
+      metadataSelection = { title: null, description: null };
       currentDetailVideoId = id;
     }
     renderDetail(video);
@@ -390,9 +392,6 @@ function renderMetadataSection(video) {
       <div class="locked-summary">
         <div class="field-label">Title</div><div>${escapeHtml(meta.selectedTitle)}</div>
         <div class="field-label">Description</div><div>${escapeHtml(meta.selectedDescription)}</div>
-        <div class="field-label">Thumbnail text</div><div>${escapeHtml(meta.selectedThumbnailText)}</div>
-        <div class="field-label">Thumbnail</div>
-        <img src="/api/media/${escapeHtml(meta.selectedThumbnailR2Key)}" alt="Selected thumbnail">
       </div>
     `;
     return;
@@ -404,37 +403,14 @@ function renderMetadataSection(video) {
   }
 
   const hasOptions = meta && meta.titleOptions && meta.titleOptions.length > 0;
-  html += `<div class="field-row"><button id="generate-metadata-btn" class="primary">Generate title/description/thumbnail-text options</button></div>`;
+  html += `<div class="field-row"><button id="generate-metadata-btn" class="primary">Generate title/description options</button></div>`;
 
   if (hasOptions) {
     html += renderOptionList('title-option', meta.titleOptions, metadataSelection.title);
     html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:10px 0 4px;">Description options</div>`;
     html += renderOptionList('description-option', meta.descriptionOptions, metadataSelection.description);
 
-    html += `<div class="field-label" style="color:var(--muted);font-size:11px;margin:14px 0 4px;">Upload your own thumbnail (e.g. designed in ChatGPT)</div>`;
-    html += `
-      <div id="thumbnail-dropzone" class="dropzone">
-        <div class="field-row">
-          <input type="file" id="thumbnail-file-input" accept="image/png,image/jpeg,image/webp">
-          <button id="thumbnail-upload-btn">Upload thumbnail</button>
-        </div>
-        <div class="hint">or drag and drop an image file here</div>
-      </div>
-    `;
-
-    if (meta.thumbnailCandidates && meta.thumbnailCandidates.length > 0) {
-      html += `<div class="thumbnail-grid">`;
-      for (const candidate of meta.thumbnailCandidates) {
-        const selected = metadataSelection.thumbnailR2Key === candidate.r2Key;
-        html += `
-          <div class="thumbnail-candidate${selected ? ' selected' : ''}" data-r2key="${escapeHtml(candidate.r2Key)}" data-text="${escapeHtml(candidate.thumbnailText)}">
-            <img src="/api/media/${escapeHtml(candidate.r2Key)}" alt="Thumbnail candidate">
-            <div class="label">${escapeHtml(candidate.thumbnailText)}</div>
-          </div>
-        `;
-      }
-      html += `</div>`;
-    }
+    html += `<div class="hint" style="margin:10px 0;">Thumbnails are handled entirely in YouTube Studio — nothing to pick here.</div>`;
 
     html += `<div class="field-row" style="margin-top:12px;"><button id="lock-in-metadata-btn" class="primary">Lock in selections</button></div>`;
   }
@@ -451,75 +427,7 @@ function renderMetadataSection(video) {
     wireOptionList('title-option', value => { metadataSelection.title = value; });
     wireOptionList('description-option', value => { metadataSelection.description = value; });
 
-    wireThumbnailDropzone(video.id);
-
-    document.querySelectorAll('.thumbnail-grid .thumbnail-candidate').forEach(el => {
-      el.addEventListener('click', () => {
-        metadataSelection.thumbnailR2Key = el.dataset.r2key;
-        metadataSelection.thumbnailText = el.dataset.text;
-        document.querySelectorAll('.thumbnail-grid .thumbnail-candidate').forEach(c => c.classList.remove('selected'));
-        el.classList.add('selected');
-      });
-    });
-
     document.getElementById('lock-in-metadata-btn').addEventListener('click', () => onLockInMetadata(video.id));
-  }
-}
-
-function wireThumbnailDropzone(videoId) {
-  const zone = document.getElementById('thumbnail-dropzone');
-  const fileInput = document.getElementById('thumbnail-file-input');
-  const uploadBtn = document.getElementById('thumbnail-upload-btn');
-  if (!zone) return;
-
-  uploadBtn.addEventListener('click', () => {
-    const file = fileInput.files[0];
-    if (!file) {
-      showError('Choose an image first.');
-      return;
-    }
-    uploadThumbnailFile(videoId, file);
-  });
-
-  zone.addEventListener('dragover', e => {
-    e.preventDefault();
-    zone.classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) uploadThumbnailFile(videoId, file);
-  });
-}
-
-async function uploadThumbnailFile(videoId, file) {
-  clearError();
-  const uploadBtn = document.getElementById('thumbnail-upload-btn');
-  if (uploadBtn) {
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = 'Uploading…';
-  }
-  try {
-    const res = await fetch(
-      `/api/metadata/thumbnail-upload?videoId=${encodeURIComponent(videoId)}&filename=${encodeURIComponent(file.name)}`,
-      { method: 'POST', body: file }
-    );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `Upload failed: ${res.status}`);
-    // Auto-select the thumbnail that was just uploaded — otherwise it only
-    // lands in the candidate grid and "Lock in selections" still blocks
-    // with "pick a thumbnail" until the user clicks the new tile themselves.
-    metadataSelection.thumbnailR2Key = data.thumbnailR2Key;
-    metadataSelection.thumbnailText = 'Uploaded thumbnail';
-    await loadVideoDetail(videoId);
-  } catch (err) {
-    showError(err.message);
-    if (uploadBtn) {
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = 'Upload thumbnail';
-    }
   }
 }
 
@@ -566,14 +474,14 @@ async function onGenerateMetadata(videoId, topicTitle) {
   } catch (err) {
     showError(err.message);
     btn.disabled = false;
-    btn.textContent = 'Generate title/description/thumbnail-text options';
+    btn.textContent = 'Generate title/description options';
   }
 }
 
 async function onLockInMetadata(videoId) {
   clearError();
-  if (!metadataSelection.title || !metadataSelection.description || !metadataSelection.thumbnailR2Key) {
-    showError('Pick a title, a description, and a thumbnail image before locking in.');
+  if (!metadataSelection.title || !metadataSelection.description) {
+    showError('Pick a title and a description before locking in.');
     return;
   }
   const btn = document.getElementById('lock-in-metadata-btn');
@@ -586,8 +494,6 @@ async function onLockInMetadata(videoId) {
         videoId,
         selectedTitle: metadataSelection.title,
         selectedDescription: metadataSelection.description,
-        selectedThumbnailText: metadataSelection.thumbnailText,
-        selectedThumbnailR2Key: metadataSelection.thumbnailR2Key,
       }),
     });
     await loadVideoDetail(videoId);
@@ -613,7 +519,7 @@ function renderPublishSection(video) {
 
   const meta = video.metadata;
   els.publishSectionBody.innerHTML = `
-    <div class="hint">Direct YouTube upload is off for now — copy these into YouTube Studio yourself.</div>
+    <div class="hint">Copy these into YouTube Studio yourself — thumbnail and video upload are both manual too.</div>
     <div class="field-label" style="color:var(--muted);font-size:11px;margin:12px 0 4px;">Title</div>
     <div class="field-row">
       <input type="text" id="publish-title-field" value="${escapeHtml(meta.selectedTitle)}" readonly>
@@ -624,9 +530,6 @@ function renderPublishSection(video) {
       <textarea id="publish-description-field" readonly rows="8" style="flex:1;">${escapeHtml(meta.selectedDescription)}</textarea>
       <button id="copy-description-btn" type="button">Copy</button>
     </div>
-    <div class="field-label" style="color:var(--muted);font-size:11px;margin:12px 0 4px;">Thumbnail</div>
-    <img src="/api/media/${escapeHtml(meta.selectedThumbnailR2Key)}" alt="Selected thumbnail" style="max-width:320px;border-radius:8px;display:block;">
-    <div class="hint">Right-click the thumbnail to save it, then upload it manually in YouTube Studio too.</div>
   `;
 
   document.getElementById('copy-title-btn').addEventListener('click', () => copyToClipboard(meta.selectedTitle));
@@ -765,9 +668,7 @@ async function onPublishClip(videoId, clipId, platform) {
 // dropped slightly outside the box doesn't silently navigate the tab away
 // — the browser's default for an undropped file is to open it. Scoped to
 // the list view (via the els.listView.style.display check) so it doesn't
-// interfere with the separate, self-contained thumbnail dropzone on the
-// detail view (wireThumbnailDropzone, above), which handles its own drag
-// events directly on that one element instead.
+// fire while on the detail view.
 
 let dragDepth = 0;
 
