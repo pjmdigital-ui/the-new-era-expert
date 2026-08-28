@@ -149,7 +149,7 @@ function init() {
   }
 }
 
-// ─── List view ──────────────────────────────────────────────────────────
+// ─── List view ─────────────────────────────────────────────────────
 
 async function loadVideosList() {
   clearError();
@@ -192,7 +192,7 @@ function renderVideosList(videos) {
   }
 }
 
-// ─── Upload flow ────────────────────────────────────────────────────────
+// ─── Upload flow ──────────────────────────────────────────────────
 
 async function onUploadClick() {
   const file = els.fileInput.files[0];
@@ -280,7 +280,7 @@ async function onAbortUpload() {
   loadVideosList();
 }
 
-// ─── Detail view ────────────────────────────────────────────────────────
+// ─── Detail view ────────────────────────────────────────────────
 
 async function loadVideoDetail(id) {
   clearError();
@@ -717,37 +717,26 @@ function renderPublishSection(video) {
     return;
   }
 
+  const meta = video.metadata;
   els.publishSectionBody.innerHTML = `
+    <div class="hint">Direct YouTube upload is off for now — copy these into YouTube Studio yourself.</div>
+    <div class="field-label" style="color:var(--muted);font-size:11px;margin:12px 0 4px;">Title</div>
     <div class="field-row">
-      <select id="privacy-select">
-        <option value="private" selected>Private</option>
-        <option value="unlisted">Unlisted</option>
-        <option value="public">Public</option>
-      </select>
-      <button id="publish-youtube-btn" class="primary">Publish to YouTube</button>
+      <input type="text" id="publish-title-field" value="${escapeHtml(meta.selectedTitle)}" readonly>
+      <button id="copy-title-btn" type="button">Copy</button>
     </div>
+    <div class="field-label" style="color:var(--muted);font-size:11px;margin:12px 0 4px;">Description</div>
+    <div class="field-row" style="align-items:flex-start;">
+      <textarea id="publish-description-field" readonly rows="8" style="flex:1;">${escapeHtml(meta.selectedDescription)}</textarea>
+      <button id="copy-description-btn" type="button">Copy</button>
+    </div>
+    <div class="field-label" style="color:var(--muted);font-size:11px;margin:12px 0 4px;">Thumbnail</div>
+    <img src="/api/media/${escapeHtml(meta.selectedThumbnailR2Key)}" alt="Selected thumbnail" style="max-width:320px;border-radius:8px;display:block;">
+    <div class="hint">Right-click the thumbnail to save it, then upload it manually in YouTube Studio too.</div>
   `;
-  document.getElementById('publish-youtube-btn').addEventListener('click', () => onPublishYoutube(video.id));
-}
 
-async function onPublishYoutube(videoId) {
-  clearError();
-  const btn = document.getElementById('publish-youtube-btn');
-  const privacyStatus = document.getElementById('privacy-select').value;
-  btn.disabled = true;
-  btn.textContent = 'Publishing…';
-  try {
-    await apiFetch('/api/publish-youtube', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, privacyStatus }),
-    });
-    await loadVideoDetail(videoId);
-  } catch (err) {
-    showError(err.message);
-    btn.disabled = false;
-    btn.textContent = 'Publish to YouTube';
-  }
+  document.getElementById('copy-title-btn').addEventListener('click', () => copyToClipboard(meta.selectedTitle));
+  document.getElementById('copy-description-btn').addEventListener('click', () => copyToClipboard(meta.selectedDescription));
 }
 
 function renderRepurposeSection(video) {
@@ -877,7 +866,7 @@ async function onPublishClip(videoId, clipId, platform) {
   }
 }
 
-// ─── Drag-and-drop upload ─────────────────────────────────────────────
+// ─── Drag-and-drop upload ────────────────────────────────────────────
 // Dragging over the whole document (not just the dropzone) so a file
 // dropped slightly outside the box doesn't silently navigate the tab away
 // — the browser's default for an undropped file is to open it. Scoped to
@@ -915,7 +904,7 @@ document.addEventListener('drop', e => {
   if (file) startUpload(file);
 });
 
-// ─── Wire up static elements ────────────────────────────────────────────
+// ─── Wire up static elements ────────────────────────────────
 
 els.uploadBtn.addEventListener('click', onUploadClick);
 els.abortUploadBtn.addEventListener('click', onAbortUpload);
