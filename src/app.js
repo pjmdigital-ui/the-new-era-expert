@@ -69,6 +69,9 @@ function renderTopics(data) {
 
   for (const topic of topics) {
     const row = document.createElement('tr');
+    row.className = 'clickable';
+    row.dataset.id = topic.id;
+    row.title = 'Click to open this topic’s script';
     const sourceTag = topic.source === 'discovered' ? '<span class="entry-tag source-tag">Discovered</span>' : '';
     row.innerHTML = `
       <td>${escapeHtml(topic.title)}</td>
@@ -79,6 +82,13 @@ function renderTopics(data) {
     `;
     els.tbody.appendChild(row);
   }
+
+  els.tbody.querySelectorAll('tr.clickable').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      window.location.href = `slides.html?id=${encodeURIComponent(row.dataset.id)}`;
+    });
+  });
 
   els.tbody.querySelectorAll('.cover-btn').forEach(btn => {
     btn.addEventListener('click', () => markCovered(btn.dataset.id));
